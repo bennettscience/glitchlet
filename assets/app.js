@@ -1056,8 +1056,27 @@ function isAbsolutePath(url) {
   return url.startsWith("/") && !url.startsWith("//");
 }
 
-function replaceCssUrls(cssText, baseDir, warnings) {
-  return cssText.replace(/url\(([^)]+)\)/g, (match, raw) => {
+function rewriteCss(cssText, baseDir, warnings, seenCss = new Set()) {
+  // Inline `@import "file.css";` / `@import url(file.css) media;` by
+  // recursively rewriting the imported stylesheet. seenCss breaks cycles.
+  const importRe = /@import\s+(?:url\(\s*(['"]?)([^'")]+)\1\s*\)|(['"])([^'"]+)\3)([^;]*);/gi;
+  let updated = cssText.replace(importRe, (match, q1, urlA, q3, urlB, media) => {
+    const spec = (urlA || urlB || "").trim();
+    if (!spec || !isRelativeUrl(spec)) return match;
+    if (isAbsolutePath(spec)) {
+      warnings.add(`Absolute path in CSS: ${spec}`);
+      return match;
+    }
+    const resolved = resolvePath(baseDir, spec);
+    const file = getFile(resolved);
+    if (!file || file.kind === "binary") return match;
+    if (seenCss.has(resolved)) return "";
+    seenCss.add(resolved);
+    const inner = rewriteCss(String(file.data || ""), dirname(resolved), warnings, seenCss);
+    const assetUrl = createAssetUrl({ ...file, data: inner, kind: "text" }, "text/css");
+    return `@import url(${assetUrl})${media || ""};`;
+  });
+  updated = updated.replace(/url\(([^)]+)\)/g, (match, raw) => {
     let url = raw.trim().replace(/^['"]|['"]$/g, "");
     if (!url || !isRelativeUrl(url)) return match;
     if (isAbsolutePath(url)) {
@@ -1070,6 +1089,27 @@ function replaceCssUrls(cssText, baseDir, warnings) {
     const assetUrl = createAssetUrl(file);
     return `url(${assetUrl})`;
   });
+  return updated;
+}
+
+function rewriteSrcset(value, baseDir, warnings) {
+  return value
+    .split(",")
+    .map((part) => {
+      const trimmed = part.trim();
+      if (!trimmed) return "";
+      const [url, ...descriptors] = trimmed.split(/\s+/);
+      if (!url || !isRelativeUrl(url)) return trimmed;
+      if (isAbsolutePath(url)) {
+        warnings.add(`Absolute path in HTML: ${url}`);
+        return trimmed;
+      }
+      const file = getFile(resolvePath(baseDir, url));
+      if (!file) return trimmed;
+      return [createAssetUrl(file), ...descriptors].join(" ");
+    })
+    .filter(Boolean)
+    .join(", ");
 }
 
 function rewriteJsImports(jsText, baseDir, warnings, jsUrlCache) {
@@ -1131,7 +1171,7 @@ function rewriteDocument(doc, htmlPath, warnings) {
     if (!file) continue;
     if (link.rel === "stylesheet") {
       const cssText = file.kind === "binary" ? "" : String(file.data || "");
-      const updatedCss = replaceCssUrls(cssText, dirname(resolved), warnings);
+      const updatedCss = rewriteCss(cssText, dirname(resolved), warnings, new Set([resolved]));
       const assetUrl = createAssetUrl({ ...file, data: updatedCss, kind: "text" }, "text/css");
       link.setAttribute("href", assetUrl);
     } else {
@@ -1173,10 +1213,37 @@ function rewriteDocument(doc, htmlPath, warnings) {
     node.setAttribute("src", createAssetUrl(file));
   }
 
+  const srcsetNodes = Array.from(doc.querySelectorAll("[srcset]"));
+  for (const node of srcsetNodes) {
+    const srcset = node.getAttribute("srcset");
+    if (!srcset) continue;
+    node.setAttribute("srcset", rewriteSrcset(srcset, baseDir, warnings));
+  }
+
+  const posterNodes = Array.from(doc.querySelectorAll("[poster]"));
+  for (const node of posterNodes) {
+    const poster = node.getAttribute("poster");
+    if (!poster || !isRelativeUrl(poster)) continue;
+    if (isAbsolutePath(poster)) {
+      warnings.add(`Absolute path in HTML: ${poster}`);
+      continue;
+    }
+    const file = getFile(resolvePath(baseDir, poster));
+    if (!file) continue;
+    node.setAttribute("poster", createAssetUrl(file));
+  }
+
+  const inlineStyleNodes = Array.from(doc.querySelectorAll("[style]"));
+  for (const node of inlineStyleNodes) {
+    const styleText = node.getAttribute("style");
+    if (!styleText || !styleText.includes("url(")) continue;
+    node.setAttribute("style", rewriteCss(styleText, baseDir, warnings));
+  }
+
   const styleNodes = Array.from(doc.querySelectorAll("style"));
   for (const style of styleNodes) {
     const cssText = style.textContent || "";
-    const updatedCss = replaceCssUrls(cssText, baseDir, warnings);
+    const updatedCss = rewriteCss(cssText, baseDir, warnings);
     style.textContent = updatedCss;
   }
 }

@@ -10,3 +10,5 @@ yarn-debug.log*
 yarn-error.log*
 
 publish/config.php
+install.lock
+projects/
