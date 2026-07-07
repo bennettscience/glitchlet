@@ -103,8 +103,20 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     jsonFail("Method not allowed.", 405);
 }
 
+if (!csrfIsValid()) {
+    jsonFail("Invalid request token.", 403);
+}
+
 if (!defined("UPDATE_ALLOW") || UPDATE_ALLOW !== "1") {
     jsonFail("Updates are disabled by server config.", 403);
+}
+
+if ($sha256 === "" || !preg_match("/^[0-9a-f]{64}$/i", $sha256)) {
+    jsonFail("Update manifest must include a valid sha256 checksum.");
+}
+
+if (!str_starts_with($zipUrl, "https://")) {
+    jsonFail("Update zip_url must use HTTPS.");
 }
 
 if (!$updateAvailable) {
@@ -125,11 +137,9 @@ if ($zipData === false) {
 }
 file_put_contents($zipPath, $zipData);
 
-if ($sha256 !== "") {
-    $actual = hash_file("sha256", $zipPath);
-    if (!hash_equals($sha256, $actual)) {
-        jsonFail("Update checksum mismatch.");
-    }
+$actual = hash_file("sha256", $zipPath);
+if ($actual === false || !hash_equals(strtolower($sha256), strtolower($actual))) {
+    jsonFail("Update checksum mismatch.");
 }
 
 $zip = new ZipArchive();

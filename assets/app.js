@@ -57,13 +57,13 @@ const state = {
   currentPath: null,
   currentFolderPath: "",
   collapsedFolders: new Set(),
-  previewUrls: [],
   saveTimer: null,
   previewTimer: null,
   statusTimer: null,
   suppressEditorChange: false,
   isResizing: false,
   authUser: null,
+  csrfToken: "",
   tutorialMode: false,
 };
 
@@ -278,6 +278,9 @@ async function fetchSession() {
   try {
     const response = await fetch("/publish/session.php", { credentials: "include" });
     const data = await response.json();
+    if (data?.csrf) {
+      state.csrfToken = data.csrf;
+    }
     setAuthUser(data?.user || null);
   } catch (error) {
     console.error(error);
@@ -315,15 +318,24 @@ async function handleLoginSubmit() {
     elements.loginSubmitBtn.disabled = true;
   }
   try {
+    if (!state.csrfToken) {
+      await fetchSession();
+    }
     const response = await fetch("/publish/login.php", {
       method: "POST",
       credentials: "include",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRF-Token": state.csrfToken,
+      },
       body: JSON.stringify({ email, password }),
     });
     const data = await response.json();
     if (!response.ok || !data?.ok) {
       throw new Error(data?.error || "Login failed.");
+    }
+    if (data?.csrf) {
+      state.csrfToken = data.csrf;
     }
     setAuthUser(data.user || null);
     elements.loginPasswordInput.value = "";
@@ -347,7 +359,11 @@ async function handleLoginSubmit() {
 
 async function handleLogout() {
   try {
-    await fetch("/publish/logout.php", { method: "POST", credentials: "include" });
+    await fetch("/publish/logout.php", {
+      method: "POST",
+      credentials: "include",
+      headers: { "X-CSRF-Token": state.csrfToken },
+    });
   } catch (error) {
     console.error(error);
   } finally {
@@ -1002,22 +1018,34 @@ function queuePreview() {
   state.previewTimer = setTimeout(renderPreview, 200);
 }
 
-function clearPreviewUrls() {
-  for (const url of state.previewUrls) {
-    URL.revokeObjectURL(url);
+// Preview assets are inlined as data: URIs instead of blob: URLs so the
+// preview iframe can run in an opaque origin (sandbox without
+// allow-same-origin). Blob URLs cannot be fetched from an opaque origin;
+// data: URIs can. The cache avoids re-encoding unchanged (mostly binary)
+// files on every preview render.
+const dataUrlCache = new WeakMap();
+
+function bytesToBase64(bytes) {
+  let binary = "";
+  const chunkSize = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize));
   }
-  state.previewUrls = [];
+  return btoa(binary);
 }
 
-function addPreviewUrl(url) {
-  state.previewUrls.push(url);
-  return url;
-}
-
-function createBlobUrl(file, overrideMime) {
+function createAssetUrl(file, overrideMime) {
   const mime = overrideMime || file.mime || fileMime(file.path);
-  const blob = file.kind === "binary" ? new Blob([file.data], { type: mime }) : new Blob([file.data], { type: mime });
-  return addPreviewUrl(URL.createObjectURL(blob));
+  const cached = dataUrlCache.get(file);
+  if (cached && cached.data === file.data && cached.mime === mime) {
+    return cached.url;
+  }
+  const bytes = file.kind === "binary"
+    ? new Uint8Array(file.data)
+    : new TextEncoder().encode(String(file.data ?? ""));
+  const url = `data:${mime};base64,${bytesToBase64(bytes)}`;
+  dataUrlCache.set(file, { data: file.data, mime, url });
+  return url;
 }
 
 function isRelativeUrl(url) {
@@ -1039,12 +1067,12 @@ function replaceCssUrls(cssText, baseDir, warnings) {
     const resolved = resolvePath(baseDir, url);
     const file = getFile(resolved);
     if (!file) return match;
-    const blobUrl = createBlobUrl(file);
-    return `url(${blobUrl})`;
+    const assetUrl = createAssetUrl(file);
+    return `url(${assetUrl})`;
   });
 }
 
-function rewriteJsImports(jsText, baseDir, warnings, jsBlobCache) {
+function rewriteJsImports(jsText, baseDir, warnings, jsUrlCache) {
   const replaceSpec = (spec) => {
     if (!spec || !isRelativeUrl(spec)) return spec;
     if (isAbsolutePath(spec)) {
@@ -1056,9 +1084,9 @@ function rewriteJsImports(jsText, baseDir, warnings, jsBlobCache) {
     if (!file || file.kind === "binary") return spec;
     const ext = extname(resolved);
     if (ext === "js") {
-      return createJsBlobUrl(file, dirname(resolved), warnings, jsBlobCache);
+      return createJsAssetUrl(file, dirname(resolved), warnings, jsUrlCache);
     }
-    return createBlobUrl(file);
+    return createAssetUrl(file);
   };
 
   const staticImport = /(import|export)\s+(?:[^'"]*?\sfrom\s*)?["']([^"']+)["']/g;
@@ -1075,20 +1103,20 @@ function rewriteJsImports(jsText, baseDir, warnings, jsBlobCache) {
   return updated;
 }
 
-function createJsBlobUrl(file, baseDir, warnings, jsBlobCache) {
-  if (jsBlobCache.has(file.path)) {
-    return jsBlobCache.get(file.path);
+function createJsAssetUrl(file, baseDir, warnings, jsUrlCache) {
+  if (jsUrlCache.has(file.path)) {
+    return jsUrlCache.get(file.path);
   }
   const jsText = file.kind === "binary" ? "" : String(file.data || "");
-  const updated = rewriteJsImports(jsText, baseDir, warnings, jsBlobCache);
-  const blobUrl = createBlobUrl({ ...file, data: updated, kind: "text" }, "text/javascript");
-  jsBlobCache.set(file.path, blobUrl);
-  return blobUrl;
+  const updated = rewriteJsImports(jsText, baseDir, warnings, jsUrlCache);
+  const assetUrl = createAssetUrl({ ...file, data: updated, kind: "text" }, "text/javascript");
+  jsUrlCache.set(file.path, assetUrl);
+  return assetUrl;
 }
 
 function rewriteDocument(doc, htmlPath, warnings) {
   const baseDir = dirname(htmlPath);
-  const jsBlobCache = new Map();
+  const jsUrlCache = new Map();
 
   const linkNodes = Array.from(doc.querySelectorAll("link[href]"));
   for (const link of linkNodes) {
@@ -1104,10 +1132,10 @@ function rewriteDocument(doc, htmlPath, warnings) {
     if (link.rel === "stylesheet") {
       const cssText = file.kind === "binary" ? "" : String(file.data || "");
       const updatedCss = replaceCssUrls(cssText, dirname(resolved), warnings);
-      const blobUrl = createBlobUrl({ ...file, data: updatedCss, kind: "text" }, "text/css");
-      link.setAttribute("href", blobUrl);
+      const assetUrl = createAssetUrl({ ...file, data: updatedCss, kind: "text" }, "text/css");
+      link.setAttribute("href", assetUrl);
     } else {
-      link.setAttribute("href", createBlobUrl(file));
+      link.setAttribute("href", createAssetUrl(file));
     }
   }
 
@@ -1124,9 +1152,9 @@ function rewriteDocument(doc, htmlPath, warnings) {
     if (!file) continue;
     const isModule = (script.getAttribute("type") || "").toLowerCase() === "module";
     if (isModule && extname(resolved) === "js") {
-      script.setAttribute("src", createJsBlobUrl(file, dirname(resolved), warnings, jsBlobCache));
+      script.setAttribute("src", createJsAssetUrl(file, dirname(resolved), warnings, jsUrlCache));
     } else {
-      script.setAttribute("src", createBlobUrl(file));
+      script.setAttribute("src", createAssetUrl(file));
     }
   }
 
@@ -1142,7 +1170,7 @@ function rewriteDocument(doc, htmlPath, warnings) {
     const resolved = resolvePath(baseDir, src);
     const file = getFile(resolved);
     if (!file) continue;
-    node.setAttribute("src", createBlobUrl(file));
+    node.setAttribute("src", createAssetUrl(file));
   }
 
   const styleNodes = Array.from(doc.querySelectorAll("style"));
@@ -1154,7 +1182,6 @@ function rewriteDocument(doc, htmlPath, warnings) {
 }
 
 function renderPreview() {
-  clearPreviewUrls();
   const warnings = new Set();
   const htmlFile = getFile("index.html") || Array.from(state.files.values()).find((file) => file.path.endsWith(".html"));
   let html = "<!doctype html><html><body><p>No HTML file found.</p></body></html>";
@@ -1561,12 +1588,16 @@ async function publishProject() {
     const hasMeta = await ensurePublishMetadata();
     if (!hasMeta) return;
     setStatus("Publishing...", 0);
+    if (!state.csrfToken) {
+      await fetchSession();
+    }
     const blob = await buildZipBlob();
     const form = new FormData();
     form.append("zip", blob, `project-${Date.now()}.zip`);
     form.append("name", state.projectName);
     form.append("creator", state.projectCreator);
     form.append("description", state.projectDescription);
+    form.append("csrf_token", state.csrfToken);
     const response = await fetch(PUBLISH_ENDPOINT, {
       method: "POST",
       credentials: "include",

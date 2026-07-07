@@ -32,6 +32,7 @@ These instructions assume a typical shared host (e.g., Reclaim Hosting) with PHP
 
 ## Notes
 
+- The live preview runs in a fully sandboxed iframe (opaque origin) so previewed/remixed code cannot touch your Glitchlet session, cookies, or saved projects. A side effect: `localStorage`, `document.cookie`, and IndexedDB are unavailable *inside previewed projects* (they throw a SecurityError). Published projects are unaffected.
 - ZIP import/export uses JSZip from a CDN by default. If you need fully offline hosting, download JSZip locally and update `ensureJSZip()` in `assets/app.js`.
 - Account emails use SMTP settings in `publish/config.php` (Gmail app passwords supported).
 - Keep `publish/config.php` private. It is ignored by git; do not commit SMTP or DB credentials.
@@ -53,10 +54,13 @@ Create a JSON file (hosted anywhere public) that looks like this:
 {
   "version": "0.2.0",
   "zip_url": "https://example.com/glitchlet/releases/glitchlet-0.2.0.zip",
-  "sha256": "optional-hex-sha256-checksum",
+  "sha256": "hex-sha256-checksum-of-the-zip (required)",
   "notes": "Optional short release notes."
 }
 ```
+
+The `zip_url` must use HTTPS and the `sha256` checksum is required — updates
+are refused otherwise. Generate the checksum with `shasum -a 256 release.zip`.
 
 ### Release checklist (GitHub)
 

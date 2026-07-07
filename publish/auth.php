@@ -44,6 +44,33 @@ function logoutUser(): void {
     session_destroy();
 }
 
+function csrfToken(): string {
+    startSession();
+    if (empty($_SESSION["csrf_token"])) {
+        $_SESSION["csrf_token"] = bin2hex(random_bytes(32));
+    }
+    return (string) $_SESSION["csrf_token"];
+}
+
+function csrfIsValid(): bool {
+    startSession();
+    $expected = (string) ($_SESSION["csrf_token"] ?? "");
+    if ($expected === "") {
+        return false;
+    }
+    $provided = (string) ($_POST["csrf_token"] ?? ($_SERVER["HTTP_X_CSRF_TOKEN"] ?? ""));
+    return $provided !== "" && hash_equals($expected, $provided);
+}
+
+function safeRedirectPath(string $redirect, string $fallback = "/"): string {
+    // Only allow same-origin absolute paths ("/foo"), not protocol-relative
+    // ("//evil.example") or absolute URLs.
+    if ($redirect === "" || $redirect[0] !== "/" || (isset($redirect[1]) && $redirect[1] === "/")) {
+        return $fallback;
+    }
+    return $redirect;
+}
+
 function requireLogin(): array {
     $user = currentUser();
     if ($user) {
@@ -76,6 +103,7 @@ function generatePassword(int $length = 12): string {
 function renderLoginPage(string $message = "", string $redirect = ""): string {
     $safeMessage = htmlspecialchars($message ?: "Sign in to continue.", ENT_QUOTES);
     $safeRedirect = htmlspecialchars($redirect ?: "/", ENT_QUOTES);
+    $safeCsrf = htmlspecialchars(csrfToken(), ENT_QUOTES);
     return "<!doctype html><html><head><meta charset=\"utf-8\" />"
         . "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />"
         . "<title>Glitchlet Login</title>"
@@ -89,6 +117,7 @@ function renderLoginPage(string $message = "", string $redirect = ""): string {
         . "<strong>Glitchlet Login</strong>"
         . "<p>{$safeMessage}</p>"
         . "<input type=\"hidden\" name=\"redirect\" value=\"{$safeRedirect}\" />"
+        . "<input type=\"hidden\" name=\"csrf_token\" value=\"{$safeCsrf}\" />"
         . "<input name=\"email\" type=\"email\" placeholder=\"Email\" required />"
         . "<input name=\"password\" type=\"password\" placeholder=\"Password\" required />"
         . "<button type=\"submit\">Sign in</button></form></body></html>";

@@ -13,4 +13,5 @@ echo json_encode([
         "email" => (string) $user["email"],
         "role" => (string) $user["role"],
     ] : null,
+    "csrf" => csrfToken(),
 ], JSON_UNESCAPED_SLASHES);

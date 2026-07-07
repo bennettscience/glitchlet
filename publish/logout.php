@@ -10,10 +10,17 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     exit;
 }
 
+if (!csrfIsValid()) {
+    http_response_code(403);
+    header("Content-Type: application/json; charset=utf-8");
+    echo json_encode(["ok" => false, "error" => "Invalid request token."]);
+    exit;
+}
+
 logoutUser();
 $redirect = (string) ($_POST["redirect"] ?? "");
 if ($redirect !== "") {
-    header("Location: " . $redirect);
+    header("Location: " . safeRedirectPath($redirect));
     exit;
 }
 

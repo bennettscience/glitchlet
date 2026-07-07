@@ -1,5 +1,14 @@
-<IfModule mod_headers.c>
-  Header always set Access-Control-Allow-Origin "*"
-  Header always set Access-Control-Allow-Methods "POST, OPTIONS"
-  Header always set Access-Control-Allow-Headers "Content-Type"
-</IfModule>
+# CORS is handled by publish.php with a specific allowed origin.
+# (A wildcard Access-Control-Allow-Origin here would conflict with the
+# credentialed, origin-specific headers sent by the PHP endpoints.)
+
+# Never serve config files directly, even if the PHP handler is misconfigured.
+<FilesMatch "^config\.php">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+  </IfModule>
+</FilesMatch>

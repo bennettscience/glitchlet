@@ -14,8 +14,20 @@ $raw = file_get_contents("php://input");
 $payload = $raw ? json_decode($raw, true) : null;
 $email = trim((string) (($payload["email"] ?? null) ?? ($_POST["email"] ?? "")));
 $password = (string) (($payload["password"] ?? null) ?? ($_POST["password"] ?? ""));
-$redirect = (string) ($_POST["redirect"] ?? "/publish/projects.php");
+$redirect = safeRedirectPath((string) ($_POST["redirect"] ?? ""), "/publish/projects.php");
 $isForm = !empty($_POST);
+
+if (!csrfIsValid()) {
+    if ($isForm) {
+        http_response_code(403);
+        echo renderLoginPage("Your session expired. Please try again.", $redirect);
+        exit;
+    }
+    http_response_code(403);
+    header("Content-Type: application/json; charset=utf-8");
+    echo json_encode(["ok" => false, "error" => "Invalid request token. Reload and try again."]);
+    exit;
+}
 
 if ($email === "" || $password === "") {
     if ($isForm) {
@@ -61,4 +73,5 @@ echo json_encode([
         "email" => (string) $user["email"],
         "role" => (string) $user["role"],
     ],
+    "csrf" => csrfToken(),
 ], JSON_UNESCAPED_SLASHES);

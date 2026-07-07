@@ -124,6 +124,11 @@ function sendTestEmail(string $email): bool {
 $inviteTemplate = loadInviteTemplate();
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    if (!csrfIsValid()) {
+        http_response_code(403);
+        echo "Invalid CSRF token.";
+        exit;
+    }
     $action = $_POST["action"] ?? "";
     if ($action === "create_user") {
         $email = strtolower(trim((string) ($_POST["email"] ?? "")));
@@ -284,6 +289,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 }
 
 $flash = pullFlash();
+$csrf = htmlspecialchars(csrfToken(), ENT_QUOTES);
+$csrfField = "<input type=\"hidden\" name=\"csrf_token\" value=\"{$csrf}\" />";
 $users = $pdo->query("SELECT id, email, role FROM users ORDER BY email ASC")->fetchAll();
 startSession();
 $sortOptions = [
@@ -314,11 +321,13 @@ foreach ($users as $account) {
         . "<div class=\"meta\"><strong>{$email}</strong><span>{$role}</span></div>"
         . ($role === "manager" ? "<span class=\"status\">Manager</span>" : "")
         . "<form method=\"post\">"
+        . $csrfField
         . "<input type=\"hidden\" name=\"action\" value=\"reset_password\" />"
         . "<input type=\"hidden\" name=\"user_id\" value=\"{$id}\" />"
         . "<button type=\"submit\">Reset password</button>"
         . "</form>"
         . ($role === "manager" ? "" : "<form method=\"post\" onsubmit=\"return confirm('Delete {$email}?');\">"
+            . $csrfField
             . "<input type=\"hidden\" name=\"action\" value=\"delete_user\" />"
             . "<input type=\"hidden\" name=\"user_id\" value=\"{$id}\" />"
             . "<label class=\"inline-checkbox\"><input type=\"checkbox\" name=\"delete_projects\" />Delete projects</label>"
@@ -354,6 +363,7 @@ foreach ($projects as $project) {
         . "</div>"
         . "<div class=\"status\">{$status}</div>"
         . "<form method=\"post\">"
+        . $csrfField
         . "<input type=\"hidden\" name=\"project_id\" value=\"{$id}\" />"
         . "<button name=\"action\" value=\"{$toggleAction}\">{$toggleLabel}</button>"
         . "<button name=\"action\" value=\"delete_project\" class=\"danger\" onclick=\"return confirm('Delete {$name}?');\">Delete</button>"
@@ -407,7 +417,8 @@ echo "<!doctype html><html><head><meta charset=\"utf-8\" />"
     . "<button class=\"secondary\" id=\"checkUpdateBtn\" type=\"button\">Check updates</button>"
     . "<button id=\"applyUpdateBtn\" type=\"button\" style=\"display:none;\">Apply update</button>"
     . "<form method=\"post\" action=\"/publish/logout.php\">"
-    . "<input type=\"hidden\" name=\"redirect\" value=\"" . APP_URL . "\" />"
+    . $csrfField
+    . "<input type=\"hidden\" name=\"redirect\" value=\"/\" />"
     . "<button type=\"submit\">Log out</button>"
     . "</form>"
     . "</div>"
@@ -415,18 +426,21 @@ echo "<!doctype html><html><head><meta charset=\"utf-8\" />"
     . $flashBlock
     . "<section class=\"panel\"><h2>Create editor account</h2>"
     . "<form method=\"post\">"
+    . $csrfField
     . "<input type=\"hidden\" name=\"action\" value=\"create_user\" />"
     . "<input name=\"email\" type=\"email\" placeholder=\"email@example.com\" required />"
     . "<button type=\"submit\">Create</button>"
     . "</form></section>"
     . "<section class=\"panel\"><h2>Bulk create accounts</h2>"
     . "<form method=\"post\">"
+    . $csrfField
     . "<input type=\"hidden\" name=\"action\" value=\"bulk_create\" />"
     . "<textarea name=\"emails\" placeholder=\"Paste emails separated by commas or new lines\"></textarea>"
     . "<button type=\"submit\">Create accounts</button>"
     . "</form></section>"
     . "<section class=\"panel\"><h2>Invite email template</h2>"
     . "<form method=\"post\">"
+    . $csrfField
     . "<input type=\"hidden\" name=\"action\" value=\"save_invite_template\" />"
     . "<input name=\"invite_subject\" type=\"text\" placeholder=\"Subject\" value=\""
     . htmlspecialchars($inviteTemplate["subject"] ?? "", ENT_QUOTES) . "\" required />"
@@ -438,6 +452,7 @@ echo "<!doctype html><html><head><meta charset=\"utf-8\" />"
     . "</form></section>"
     . "<section class=\"panel\"><h2>Test email delivery</h2>"
     . "<form method=\"post\" id=\"testEmailForm\">"
+    . $csrfField
     . "<input type=\"hidden\" name=\"action\" value=\"test_email\" />"
     . "<input name=\"email\" type=\"email\" placeholder=\"email@example.com\" required />"
     . "<button type=\"submit\" id=\"testEmailBtn\">Send test email</button>"
@@ -452,6 +467,7 @@ echo "<!doctype html><html><head><meta charset=\"utf-8\" />"
     . "<div class=\"grid\">{$projectRows}</div></section>"
     . "</div>"
     . "<script>"
+    . "const CSRF_TOKEN='{$csrf}';"
     . "const testForm=document.getElementById('testEmailForm');"
     . "const testBtn=document.getElementById('testEmailBtn');"
     . "if(testForm&&testBtn){testForm.addEventListener('submit',()=>{"
@@ -473,7 +489,7 @@ echo "<!doctype html><html><head><meta charset=\"utf-8\" />"
     . "if(applyBtn){applyBtn.addEventListener('click',async()=>{"
     . "const ok=confirm('Apply update now?');if(!ok)return;"
     . "applyBtn.disabled=true;applyBtn.textContent='Updating...';"
-    . "try{const res=await fetch('/publish/update.php',{method:'POST'});"
+    . "try{const res=await fetch('/publish/update.php',{method:'POST',headers:{'X-CSRF-Token':CSRF_TOKEN}});"
     . "const data=await res.json();"
     . "if(!data.ok){flash(data.error||'Update failed.');}"
     . "else{flash(data.message||'Update applied.');}"

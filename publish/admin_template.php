@@ -39,13 +39,10 @@ function deleteDirectory(string $dir): void {
     @rmdir($dir);
 }
 
-if (empty($_SESSION["csrf_token"])) {
-    $_SESSION["csrf_token"] = bin2hex(random_bytes(16));
-}
+csrfToken();
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $token = $_POST["csrf_token"] ?? "";
-    if (!hash_equals($_SESSION["csrf_token"], (string) $token)) {
+    if (!csrfIsValid()) {
         http_response_code(403);
         echo "Invalid CSRF token.";
         exit;
@@ -82,7 +79,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 $name = htmlspecialchars($project["name"] ?? "Untitled Project", ENT_QUOTES);
 $description = htmlspecialchars($project["description"] ?? "", ENT_QUOTES);
 $author = htmlspecialchars($project["author"] ?? "", ENT_QUOTES);
-$csrf = htmlspecialchars($_SESSION["csrf_token"], ENT_QUOTES);
+$csrf = htmlspecialchars(csrfToken(), ENT_QUOTES);
 $projectUrl = htmlspecialchars(($project["url"] ?? ""), ENT_QUOTES);
 $projectsUrl = "/projects/index.html";
 $appUrl = APP_URL;

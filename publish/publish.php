@@ -299,6 +299,9 @@ if (!$user) {
 if (!in_array($user["role"], ["editor", "manager"], true)) {
     fail("Permission denied.", 403);
 }
+if (!csrfIsValid()) {
+    fail("Invalid request token. Reload and try again.", 403);
+}
 
 if (empty($_FILES["zip"])) {
     fail("Missing zip file.");
