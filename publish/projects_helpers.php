@@ -9,6 +9,48 @@ function ensureProjectsRoot(): void {
     }
 }
 
+// Guarded because admin.php files generated from the pre-stub template
+// define their own copy; without the guard they would fatal on redeclare.
+if (!function_exists("deleteDirectory")) {
+    function deleteDirectory(string $dir): void {
+        if (!is_dir($dir)) {
+            return;
+        }
+        $items = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS),
+            RecursiveIteratorIterator::CHILD_FIRST
+        );
+        foreach ($items as $item) {
+            if ($item->isDir()) {
+                @rmdir($item->getPathname());
+            } else {
+                @unlink($item->getPathname());
+            }
+        }
+        @rmdir($dir);
+    }
+}
+
+function regenerateAdminPages(PDO $pdo): int {
+    ensureProjectsRoot();
+    $stub = file_get_contents(__DIR__ . "/admin_template.php");
+    if ($stub === false) {
+        throw new RuntimeException("Failed to read admin template.");
+    }
+    $count = 0;
+    foreach (glob(PROJECTS_ROOT . "/*", GLOB_ONLYDIR) ?: [] as $dir) {
+        if (file_put_contents($dir . "/admin.php", $stub) !== false) {
+            $count++;
+        }
+    }
+    $projectsAdmin = file_get_contents(__DIR__ . "/projects_admin_template.php");
+    if ($projectsAdmin !== false) {
+        file_put_contents(PROJECTS_ROOT . "/admin.php", $projectsAdmin);
+    }
+    writeProjectsIndex($pdo);
+    return $count;
+}
+
 function fetchProjects(PDO $pdo, ?int $ownerId = null): array {
     if ($ownerId) {
         $stmt = $pdo->prepare("SELECT * FROM projects WHERE owner_user_id = ? ORDER BY published_at DESC");

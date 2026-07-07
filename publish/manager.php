@@ -9,24 +9,6 @@ require_once __DIR__ . "/password_reset.php";
 $user = requireRole(["manager"]);
 $pdo = db();
 
-function deleteDirectory(string $dir): void {
-    if (!is_dir($dir)) {
-        return;
-    }
-    $items = new RecursiveIteratorIterator(
-        new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS),
-        RecursiveIteratorIterator::CHILD_FIRST
-    );
-    foreach ($items as $item) {
-        if ($item->isDir()) {
-            @rmdir($item->getPathname());
-        } else {
-            @unlink($item->getPathname());
-        }
-    }
-    @rmdir($dir);
-}
-
 function flash(string $message): void {
     startSession();
     $_SESSION["flash_message"] = $message;
@@ -285,6 +267,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 writeProjectsIndex($pdo);
             }
         }
+    } elseif ($action === "regenerate_admin") {
+        try {
+            $count = regenerateAdminPages($pdo);
+            flash("Regenerated admin pages for {$count} project(s), plus the projects index and global admin page.");
+        } catch (RuntimeException $e) {
+            flash("Failed to regenerate admin pages: " . $e->getMessage());
+        }
     }
     header("Location: " . $_SERVER["REQUEST_URI"]);
     exit;
@@ -458,6 +447,13 @@ echo "<!doctype html><html><head><meta charset=\"utf-8\" />"
     . "<input type=\"hidden\" name=\"action\" value=\"test_email\" />"
     . "<input name=\"email\" type=\"email\" placeholder=\"email@example.com\" required />"
     . "<button type=\"submit\" id=\"testEmailBtn\">Send test email</button>"
+    . "</form></section>"
+    . "<section class=\"panel\"><h2>Maintenance</h2>"
+    . "<form method=\"post\">"
+    . $csrfField
+    . "<input type=\"hidden\" name=\"action\" value=\"regenerate_admin\" />"
+    . "<button type=\"submit\">Regenerate admin pages</button>"
+    . "<div class=\"note\">Rewrites every project's admin.php stub, the global projects admin page, and the projects index. Run this once after updating Glitchlet.</div>"
     . "</form></section>"
     . "<section class=\"panel\"><h2>Accounts</h2><div class=\"grid\">{$userRows}</div></section>"
     . "<section class=\"panel\"><h2>All projects</h2>"

@@ -63,10 +63,9 @@
 
 ## Known gotchas
 - Any hidden files in publish zip are rejected by server; `.keep` skipped on zip build.
-- Individual project `admin.php` must be regenerated if templates change.
+- Per-project `admin.php` is a thin stub that requires `publish/project_admin.php`, so template changes apply everywhere. Projects published before the stub existed carry a full copy — use the manager console's "Regenerate admin pages" button once to convert them.
 - `projects/admin.php` and `projects/index.html` are regenerated on publish.
 
 ## TODO ideas
 - Persist folder collapse state in localStorage.
 - Add folder icons in tree and rename folders.
-- Add “regenerate admin pages” helper script.
