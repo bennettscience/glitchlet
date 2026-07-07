@@ -15,6 +15,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $error = "Please enter your new password twice.";
     } elseif ($password !== $confirm) {
         $error = "Passwords do not match.";
+    } elseif (($policyError = passwordPolicyError($password)) !== "") {
+        $error = $policyError;
     } else {
         $reset = getPasswordReset($pdo, $token);
         if (!$reset) {

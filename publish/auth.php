@@ -3,6 +3,15 @@ declare(strict_types=1);
 
 require_once __DIR__ . "/db.php";
 
+function requestIsHttps(): bool {
+    if (!empty($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] !== "off") {
+        return true;
+    }
+    // Behind a reverse proxy or load balancer, HTTPS terminates upstream and
+    // only X-Forwarded-Proto reveals the original scheme.
+    return strtolower((string) ($_SERVER["HTTP_X_FORWARDED_PROTO"] ?? "")) === "https";
+}
+
 function startSession(): void {
     if (session_status() === PHP_SESSION_ACTIVE) {
         return;
@@ -11,7 +20,7 @@ function startSession(): void {
     session_set_cookie_params([
         "lifetime" => 0,
         "path" => "/",
-        "secure" => !empty($_SERVER["HTTPS"]),
+        "secure" => requestIsHttps(),
         "httponly" => true,
         "samesite" => "Lax",
     ]);
@@ -42,6 +51,15 @@ function logoutUser(): void {
         setcookie(session_name(), "", time() - 42000, $params["path"], $params["domain"], $params["secure"], $params["httponly"]);
     }
     session_destroy();
+}
+
+const MIN_PASSWORD_LENGTH = 8;
+
+function passwordPolicyError(string $password): string {
+    if (strlen($password) < MIN_PASSWORD_LENGTH) {
+        return "Password must be at least " . MIN_PASSWORD_LENGTH . " characters.";
+    }
+    return "";
 }
 
 function csrfToken(): string {

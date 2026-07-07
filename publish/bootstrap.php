@@ -28,6 +28,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $password = (string) ($_POST["password"] ?? "");
     if (!filter_var($email, FILTER_VALIDATE_EMAIL) || $password === "") {
         $error = "Valid email and password required.";
+    } elseif (($policyError = passwordPolicyError($password)) !== "") {
+        $error = $policyError;
     } else {
         $hash = password_hash($password, PASSWORD_DEFAULT);
         $stmt = $pdo->prepare("INSERT INTO users (email, role, password_hash) VALUES (?, 'manager', ?)");

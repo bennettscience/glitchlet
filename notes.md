@@ -55,7 +55,7 @@
 
 ## Notable paths and constants
 - `assets/app.js`
-  - `PUBLISH_ENDPOINT` points to `https://glitchlet.digitaldavidson.net/publish/publish.php`.
+  - `PUBLISH_ENDPOINT` is derived from `window.location.origin` (`/publish/publish.php` on the current host).
   - `LINE_WRAP_KEY`, `THEME_STORAGE_KEY`, `EDITOR_THEME_KEY` in localStorage.
 - `publish/publish.php`
   - `APP_URL` and `PROJECT_URL_BASE` for wayfinding.

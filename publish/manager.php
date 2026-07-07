@@ -153,7 +153,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 if ($e->getCode() === "23000") {
                     flash("Account already exists for {$email}.");
                 } else {
-                    flash("Failed to create {$email}: " . $e->getMessage());
+                    error_log("Glitchlet create_user failed: " . $e->getMessage());
+                    flash("Failed to create {$email}: database error (see server log).");
                 }
             }
         }
@@ -182,7 +183,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     if ($e->getCode() === "23000") {
                         $created[] = "{$email} (already exists)";
                     } else {
-                        $created[] = "{$email} (create failed: " . $e->getMessage() . ")";
+                        error_log("Glitchlet bulk_create failed for {$email}: " . $e->getMessage());
+                        $created[] = "{$email} (create failed: database error, see server log)";
                     }
                 }
             }

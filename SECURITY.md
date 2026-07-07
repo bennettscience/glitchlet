@@ -2,7 +2,8 @@
 
 ## Reporting a vulnerability
 
-If you discover a security issue, please open a private GitHub security
-advisory if available, or email the maintainers.
+If you discover a security issue, please report it privately via GitHub's
+security advisories:
+https://github.com/samplereality/glitchlet/security/advisories/new
 
-Contact: TBD
+Please do not open a public issue for security problems.

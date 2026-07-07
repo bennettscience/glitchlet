@@ -29,21 +29,21 @@ $adjectives = [
     "lucky", "neon", "crimson", "mellow", "sparkly", "wild", "sleepy", "rapid", "glowing", "frosty",
     "curious", "bold", "playful", "stellar", "tidy", "velvet", "golden", "lunar", "cobalt", "amber",
     "silver", "dusky", "vivid", "quiet", "sunset", "ancient", "vibrant", "breezy", "lively", "shy",
-    "proud", "patient", "whispering", "soaring", "crisp", "sandy", "gleaming", "magic", "gentle",
-    "pearly", "plucky", "radiant", "rusty", "sleepy", "steady", "stormy", "sweet", "nimble",
+    "proud", "patient", "whispering", "soaring", "crisp", "sandy", "gleaming", "magic", "jolly",
+    "pearly", "plucky", "radiant", "rusty", "scarlet", "steady", "stormy", "sweet", "nimble",
     "twinkling", "mystic", "earthy", "dreamy", "citrus", "striped", "silky", "violet", "sunlit",
-    "wooden", "velvet", "opal", "icy", "salty", "fresh", "calm", "stormy", "lucky", "royal",
+    "wooden", "coral", "opal", "icy", "salty", "fresh", "calm", "dapper", "minty", "royal",
     "brisk", "teal", "lavish", "glossy", "bubbly", "snappy", "daring", "blooming", "harmonic",
 ];
 $nouns = [
     "llama", "fox", "beast", "otter", "raven", "comet", "river", "forest", "ember", "shadow",
     "aurora", "meadow", "whale", "falcon", "breeze", "summit", "orchid", "monarch", "lagoon", "quartz",
     "nebula", "canyon", "panda", "harbor", "voyage", "meerkat", "blossom", "galaxy", "island", "trail",
-    "harbor", "brook", "tide", "reef", "maple", "cabin", "tower", "garden", "marsh", "grove",
-    "ridge", "harvest", "lantern", "compass", "drift", "glade", "meadow", "valley", "horizon",
-    "ember", "spark", "mirror", "meadowlark", "spirit", "sprout", "fern", "rocket", "orbit",
+    "cove", "brook", "tide", "reef", "maple", "cabin", "tower", "garden", "marsh", "grove",
+    "ridge", "harvest", "lantern", "compass", "drift", "glade", "prairie", "valley", "horizon",
+    "spruce", "spark", "mirror", "meadowlark", "spirit", "sprout", "fern", "rocket", "orbit",
     "thunder", "pebble", "pavilion", "studio", "signal", "cicada", "firefly", "ripple", "creek",
-    "eagle", "owl", "robin", "tiger", "panther", "lighthouse", "workshop", "harbor", "cascade",
+    "eagle", "owl", "robin", "tiger", "panther", "lighthouse", "workshop", "dune", "cascade",
     "voyager", "paradox", "weaver", "composer", "harvester", "sentinel", "atlas", "keystone",
 ];
 

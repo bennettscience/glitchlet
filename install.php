@@ -157,6 +157,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && !$errors) {
     }
     if ($values["manager_email"] === "" || $values["manager_password"] === "") {
         $errors[] = "Manager email and password are required.";
+    } elseif (strlen((string) $values["manager_password"]) < 8) {
+        $errors[] = "Manager password must be at least 8 characters.";
     }
     if (!filter_var($values["manager_email"], FILTER_VALIDATE_EMAIL)) {
         $errors[] = "Manager email is not valid.";
@@ -217,7 +219,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && !$errors) {
     }
     if (!$errors) {
         file_put_contents($lockPath, "Installed: " . date("c") . "\n");
-        $success = "Install complete. You can now log in as manager.";
+        $success = "Install complete. You can now log in as manager. "
+            . "For extra safety, delete install.php from the server.";
     }
 }
 
@@ -274,7 +277,7 @@ echo "<form method=\"post\">"
     . "<input name=\"db_name\" value=\"" . esc($values["db_name"]) . "\" required />"
     . "<div class=\"row\">"
     . "<div><label>Database user</label><input name=\"db_user\" value=\"" . esc($values["db_user"]) . "\" required /></div>"
-    . "<div><label>Database password</label><input name=\"db_pass\" type=\"password\" value=\"" . esc($values["db_pass"]) . "\" /></div>"
+    . "<div><label>Database password</label><input name=\"db_pass\" type=\"password\" autocomplete=\"new-password\" /></div>"
     . "</div>"
     . "</div>"
     . "<div class=\"panel\">"
@@ -287,7 +290,7 @@ echo "<form method=\"post\">"
     . "</div>"
     . "<div class=\"row\">"
     . "<div><label>SMTP user (full Gmail)</label><input name=\"smtp_user\" value=\"" . esc($values["smtp_user"]) . "\" /></div>"
-    . "<div><label>SMTP pass (app password)</label><input name=\"smtp_pass\" type=\"password\" value=\"" . esc($values["smtp_pass"]) . "\" /></div>"
+    . "<div><label>SMTP pass (app password)</label><input name=\"smtp_pass\" type=\"password\" autocomplete=\"new-password\" /></div>"
     . "</div>"
     . "<div class=\"row\">"
     . "<div><label>From email</label><input name=\"smtp_from\" value=\"" . esc($values["smtp_from"]) . "\" /></div>"
@@ -301,8 +304,8 @@ echo "<form method=\"post\">"
     . "<h2>Manager Account</h2>"
     . "<label>Email</label>"
     . "<input name=\"manager_email\" type=\"email\" value=\"" . esc($values["manager_email"]) . "\" required />"
-    . "<label>Password</label>"
-    . "<input name=\"manager_password\" type=\"password\" value=\"" . esc($values["manager_password"]) . "\" required />"
+    . "<label>Password (at least 8 characters)</label>"
+    . "<input name=\"manager_password\" type=\"password\" autocomplete=\"new-password\" required />"
     . "<label>Bootstrap token</label>"
     . "<input name=\"bootstrap_token\" value=\"" . esc($values["bootstrap_token"]) . "\" />"
     . "</div>"

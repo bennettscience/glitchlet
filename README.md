@@ -20,6 +20,7 @@ These instructions assume a typical shared host (e.g., Reclaim Hosting) with PHP
 3) Configure a MySQL database and add a new user with ALL privileges. On cPanel, you can do both in the MySQL Database wizard. Note the new database name, database user, and database user password.
 4) Generate an app password for your Gmail account. Because Google keeps this option buried, the easiest way to find it is to log into your Google Account and search for `app password`. Take note of this app-specific password.
 5) Now visit `/install.php` to complete the installation.
+6) After the installer reports success, delete `install.php` from the server. (The installer locks itself with `install.lock`, but removing the file entirely is safer.)
 
 
 ## Project structure

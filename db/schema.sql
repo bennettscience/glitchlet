@@ -24,6 +24,15 @@ CREATE TABLE projects (
   CONSTRAINT fk_projects_owner FOREIGN KEY (owner_user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS login_attempts (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  email VARCHAR(190) NOT NULL,
+  ip VARCHAR(45) NOT NULL DEFAULT '',
+  attempted_at INT NOT NULL,
+  INDEX idx_attempts_email (email, attempted_at),
+  INDEX idx_attempts_ip (ip, attempted_at)
+);
+
 CREATE TABLE password_resets (
   id INT AUTO_INCREMENT PRIMARY KEY,
   user_id INT NOT NULL,

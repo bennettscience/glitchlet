@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . "/auth.php";
+require_once __DIR__ . "/rate_limit.php";
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     http_response_code(405);
@@ -42,10 +43,25 @@ if ($email === "" || $password === "") {
 }
 
 $pdo = db();
+$ip = (string) ($_SERVER["REMOTE_ADDR"] ?? "");
+ensureLoginAttemptsTable($pdo);
+if (loginIsRateLimited($pdo, $email, $ip)) {
+    if ($isForm) {
+        http_response_code(429);
+        echo renderLoginPage("Too many login attempts. Try again in a few minutes.", $redirect);
+        exit;
+    }
+    http_response_code(429);
+    header("Content-Type: application/json; charset=utf-8");
+    echo json_encode(["ok" => false, "error" => "Too many login attempts. Try again in a few minutes."]);
+    exit;
+}
+
 $stmt = $pdo->prepare("SELECT id, email, role, password_hash FROM users WHERE email = ? LIMIT 1");
 $stmt->execute([$email]);
 $user = $stmt->fetch();
 if (!$user || !password_verify($password, (string) ($user["password_hash"] ?? ""))) {
+    recordFailedLogin($pdo, $email, $ip);
     if ($isForm) {
         http_response_code(403);
         echo renderLoginPage("Login failed.", $redirect);
@@ -57,6 +73,7 @@ if (!$user || !password_verify($password, (string) ($user["password_hash"] ?? ""
     exit;
 }
 
+clearFailedLogins($pdo, $email);
 $pdo->prepare("UPDATE users SET last_login_at = NOW() WHERE id = ?")->execute([$user["id"]]);
 loginUser($user);
 
