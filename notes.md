@@ -2,7 +2,7 @@
 
 ## Overview
 - Glitchlet is a browser-based HTML/CSS/JS editor with live preview, multi-file tree, project manager, and PHP publishing.
-- Frontend lives in `index.html`, `assets/styles.css`, and `assets/app.js`.
+- Frontend lives in `index.html`, `assets/styles.css`, and `assets/js/` (ordered classic scripts sharing one global scope; `core.js` loads first, `main.js` wires events and boots last).
 - Publishing + admin dashboards live in `publish/`.
 
 ## Key UI features
@@ -54,7 +54,7 @@
 - Optional: use `/install.php` to write config, create `/projects`, run schema, and create manager (writes `install.lock`).
 
 ## Notable paths and constants
-- `assets/app.js`
+- `assets/js/core.js`
   - `PUBLISH_ENDPOINT` is derived from `window.location.origin` (`/publish/publish.php` on the current host).
   - `LINE_WRAP_KEY`, `THEME_STORAGE_KEY`, `EDITOR_THEME_KEY` in localStorage.
 - `publish/publish.php`

@@ -520,6 +520,21 @@
     <script src="https://unpkg.com/prettier@3.8.0/plugins/postcss.js"></script>
     <script src="https://unpkg.com/lucide@0.454.0/dist/umd/lucide.min.js"></script>
     <script src="assets/version.js"></script>
-    <script src="assets/app.js"></script>
+    <!-- Classic scripts sharing one global scope; order matters:
+         core.js first (constants/state/elements), main.js last (startup). -->
+    <script src="assets/js/core.js"></script>
+    <script src="assets/js/paths.js"></script>
+    <script src="assets/js/dialogs.js"></script>
+    <script src="assets/js/storage.js"></script>
+    <script src="assets/js/auth.js"></script>
+    <script src="assets/js/editor.js"></script>
+    <script src="assets/js/files.js"></script>
+    <script src="assets/js/preview.js"></script>
+    <script src="assets/js/archive.js"></script>
+    <script src="assets/js/projects.js"></script>
+    <script src="assets/js/theme.js"></script>
+    <script src="assets/js/ui.js"></script>
+    <script src="assets/js/tutorial.js"></script>
+    <script src="assets/js/main.js"></script>
   </body>
 </html>

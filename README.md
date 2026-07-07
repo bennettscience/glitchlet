@@ -27,14 +27,15 @@ These instructions assume a typical shared host (e.g., Reclaim Hosting) with PHP
 
 - `index.html` - app shell
 - `assets/styles.css` - UI styling
-- `assets/app.js` - editor logic, preview rendering, persistence, ZIP flows
+- `assets/js/` - editor logic split into modules (`core.js` state/constants, `files.js` file tree, `preview.js` sandboxed preview, `archive.js` import/export/publish, `main.js` event wiring/startup, etc.); loaded as ordered classic scripts, no build step
 - `publish/manager.php` - manager console (accounts/projects)
+- `publish/project_admin.php` - shared per-project admin handler (each project's `admin.php` is a stub that requires it)
 - `publish/projects.php` - per-user published projects dashboard
 
 ## Notes
 
 - The live preview runs in a fully sandboxed iframe (opaque origin) so previewed/remixed code cannot touch your Glitchlet session, cookies, or saved projects. A side effect: `localStorage`, `document.cookie`, and IndexedDB are unavailable *inside previewed projects* (they throw a SecurityError). Published projects are unaffected.
-- ZIP import/export uses JSZip from a CDN by default. If you need fully offline hosting, download JSZip locally and update `ensureJSZip()` in `assets/app.js`.
+- ZIP import/export uses JSZip from a CDN by default. If you need fully offline hosting, download JSZip locally and update `ensureJSZip()` in `assets/js/archive.js`.
 - Account emails use SMTP settings in `publish/config.php` (Gmail app passwords supported).
 - Keep `publish/config.php` private. It is ignored by git; do not commit SMTP or DB credentials.
 - `/publish/bootstrap.php` is disabled when `install.lock` exists.
