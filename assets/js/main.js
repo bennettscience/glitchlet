@@ -10,6 +10,15 @@ function setupEvents() {
       queueSave();
       queuePreview();
     });
+    codeMirror.on("keyup", (cm, evt) => {
+      if (
+        !cm.state.completionActive &&
+        !EXCLUDE_AUTOCOMPLETE_KEYS[(evt.keyCode || evt.which).toString()]
+      )
+        cm.showHint({
+          completeSingle: false,
+        });
+    });
   } else {
     elements.editor.addEventListener("input", () => {
       updateCurrentFile(elements.editor.value);
@@ -19,7 +28,9 @@ function setupEvents() {
   }
 
   elements.newProjectBtn.addEventListener("click", openNewProjectModal);
-  elements.importZipBtn.addEventListener("click", () => elements.zipInput.click());
+  elements.importZipBtn.addEventListener("click", () =>
+    elements.zipInput.click(),
+  );
   elements.exportZipBtn.addEventListener("click", exportZip);
   elements.publishBtn.addEventListener("click", publishProject);
   elements.themeToggleBtn.addEventListener("click", toggleTheme);
@@ -44,7 +55,10 @@ function setupEvents() {
   });
   elements.unfoldAllBtn.addEventListener("click", async () => {
     if (!codeMirror) {
-      await showAlert("Folding is only available in the code editor.", "Unfold");
+      await showAlert(
+        "Folding is only available in the code editor.",
+        "Unfold",
+      );
       return;
     }
     codeMirror.execCommand("unfoldAll");
@@ -64,7 +78,10 @@ function setupEvents() {
       saveProjectMeta();
     }
   });
-  elements.createProjectBtn.addEventListener("click", createNewProjectFromModal);
+  elements.createProjectBtn.addEventListener(
+    "click",
+    createNewProjectFromModal,
+  );
   elements.closeNewProjectBtn.addEventListener("click", closeNewProjectModal);
   elements.newProjectModal.addEventListener("click", (event) => {
     if (event.target.classList.contains("modal-backdrop")) {
@@ -159,7 +176,10 @@ function setupEvents() {
       setStatus("Copied");
     } catch (error) {
       console.error(error);
-      await showAlert("Copy failed. You can manually copy the URL.", "Copy URL");
+      await showAlert(
+        "Copy failed. You can manually copy the URL.",
+        "Copy URL",
+      );
     }
   });
   if (elements.copyPublishPasswordBtn) {
@@ -171,7 +191,10 @@ function setupEvents() {
         setStatus("Copied");
       } catch (error) {
         console.error(error);
-        await showAlert("Copy failed. You can manually copy the password.", "Copy password");
+        await showAlert(
+          "Copy failed. You can manually copy the password.",
+          "Copy password",
+        );
       }
     });
   }
@@ -199,8 +222,12 @@ function setupEvents() {
     elements.editor.focus();
     document.execCommand("redo");
   });
-  elements.projectManagerBtn.addEventListener("click", () => toggleProjectManager());
-  elements.closeProjectManagerBtn.addEventListener("click", () => toggleProjectManager(false));
+  elements.projectManagerBtn.addEventListener("click", () =>
+    toggleProjectManager(),
+  );
+  elements.closeProjectManagerBtn.addEventListener("click", () =>
+    toggleProjectManager(false),
+  );
   elements.renameProjectBtn.addEventListener("click", renameProject);
   elements.saveProjectBtn.addEventListener("click", saveCurrentProject);
   elements.saveProjectAsBtn.addEventListener("click", saveProjectAs);
@@ -211,7 +238,11 @@ function setupEvents() {
     }
   });
   elements.addFileBtn.addEventListener("click", async () => {
-    const path = await showPrompt("New file path (e.g. assets/main.css):", "", "Add file");
+    const path = await showPrompt(
+      "New file path (e.g. assets/main.css):",
+      "",
+      "Add file",
+    );
     if (path) addFile(path);
   });
   elements.addFolderBtn.addEventListener("click", async () => {
@@ -223,16 +254,25 @@ function setupEvents() {
     if (!input) return;
     const path = base ? `${base}/${input}` : input;
     if (!addFolder(path)) {
-      await showAlert("That folder already exists or is invalid.", "New folder");
+      await showAlert(
+        "That folder already exists or is invalid.",
+        "New folder",
+      );
     } else {
       renderFileTree();
       queueSave();
     }
   });
-  elements.uploadFileBtn.addEventListener("click", () => elements.fileInput.click());
+  elements.uploadFileBtn.addEventListener("click", () =>
+    elements.fileInput.click(),
+  );
   elements.refreshPreviewBtn.addEventListener("click", renderPreview);
-  elements.toggleFilePanelBtn.addEventListener("click", () => setFilePanelCollapsed(true));
-  elements.expandFilePanelBtn.addEventListener("click", () => setFilePanelCollapsed(false));
+  elements.toggleFilePanelBtn.addEventListener("click", () =>
+    setFilePanelCollapsed(true),
+  );
+  elements.expandFilePanelBtn.addEventListener("click", () =>
+    setFilePanelCollapsed(false),
+  );
   elements.splitter.addEventListener("pointerdown", startResize);
 
   elements.zipInput.addEventListener("change", (event) => {
@@ -256,7 +296,11 @@ function setupEvents() {
     }
     const compressed = files.find((file) => {
       const name = file.name.toLowerCase();
-      return name.endsWith(".zip") || name.endsWith(".tgz") || name.endsWith(".tar.gz");
+      return (
+        name.endsWith(".zip") ||
+        name.endsWith(".tgz") ||
+        name.endsWith(".tar.gz")
+      );
     });
     if (compressed) {
       await showAlert("Use Import to add ZIP/TGZ archives.", "Upload files");
@@ -310,7 +354,8 @@ function setupEvents() {
 
   document.addEventListener("click", (event) => {
     if (elements.projectManagerPanel.classList.contains("hidden")) return;
-    const isInside = elements.projectManagerPanel.contains(event.target) ||
+    const isInside =
+      elements.projectManagerPanel.contains(event.target) ||
       elements.projectManagerBtn.contains(event.target);
     if (!isInside) toggleProjectManager(false);
   });
