@@ -21,6 +21,10 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/addon/dialog/dialog.css"
     />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/addon/hint/show-hint.css"
+    />
   </head>
   <body>
     <div class="app">
@@ -31,7 +35,11 @@
             <span class="brand-title">Glitchlet</span>
             <span class="brand-subtitle">
               Creative Coding Workbench
-              <button id="aboutBtn" class="icon-btn subtle-icon" title="About Glitchlet">
+              <button
+                id="aboutBtn"
+                class="icon-btn subtle-icon"
+                title="About Glitchlet"
+              >
                 <i data-lucide="heart-handshake"></i>
               </button>
             </span>
@@ -40,7 +48,9 @@
         <div class="current-project">
           <span class="current-project-label">Project</span>
           <div class="current-project-row">
-            <span id="currentProjectName" class="current-project-name">Untitled Project</span>
+            <span id="currentProjectName" class="current-project-name"
+              >Untitled Project</span
+            >
             <button
               id="projectMetaBtn"
               class="meta-btn"
@@ -80,18 +90,36 @@
               title="Open project manager"
               data-tutorial-title="Project manager"
               data-tutorial="Switch between saved projects, rename them, or start new ones. Import and export ZIPs, including archived Glitch projects."
-            >Project Manager</button>
-            <div id="projectManagerPanel" class="manager-panel hidden" role="dialog" aria-label="Project manager">
+            >
+              Project Manager
+            </button>
+            <div
+              id="projectManagerPanel"
+              class="manager-panel hidden"
+              role="dialog"
+              aria-label="Project manager"
+            >
               <div class="manager-header">
                 <span>Project Manager</span>
-                <button id="closeProjectManagerBtn" class="icon-btn" title="Close">
+                <button
+                  id="closeProjectManagerBtn"
+                  class="icon-btn"
+                  title="Close"
+                >
                   <i data-lucide="x"></i>
                 </button>
               </div>
               <div class="manager-section">
-                <label class="manager-label" for="projectNameInput">Current project name</label>
+                <label class="manager-label" for="projectNameInput"
+                  >Current project name</label
+                >
                 <div class="manager-row">
-                  <input id="projectNameInput" class="manager-input" type="text" placeholder="Untitled Project" />
+                  <input
+                    id="projectNameInput"
+                    class="manager-input"
+                    type="text"
+                    placeholder="Untitled Project"
+                  />
                   <button id="renameProjectBtn" class="btn">Rename</button>
                 </div>
                 <div class="manager-row">
@@ -100,7 +128,11 @@
                   <button id="newProjectBtn" class="btn">New Project</button>
                 </div>
               </div>
-              <div class="manager-section" data-tutorial-title="Project list" data-tutorial="Select a project to load it into the editor.">
+              <div
+                class="manager-section"
+                data-tutorial-title="Project list"
+                data-tutorial="Select a project to load it into the editor."
+              >
                 <div class="manager-label">Projects</div>
                 <div id="projectList" class="project-list"></div>
               </div>
@@ -112,13 +144,17 @@
                     class="btn"
                     data-tutorial-title="Import ZIP"
                     data-tutorial="Load a ZIP file into the current project."
-                  >Import ZIP</button>
+                  >
+                    Import ZIP
+                  </button>
                   <button
                     id="exportZipBtn"
                     class="btn"
                     data-tutorial-title="Export ZIP"
                     data-tutorial="Download your project as a ZIP archive."
-                  >Export ZIP</button>
+                  >
+                    Export ZIP
+                  </button>
                 </div>
               </div>
             </div>
@@ -128,7 +164,9 @@
             class="btn btn-primary"
             data-tutorial-title="Publish"
             data-tutorial="Send this project to the server and get a shareable URL."
-          >Publish</button>
+          >
+            Publish
+          </button>
           <a
             class="btn"
             href="/projects/index.html"
@@ -136,14 +174,17 @@
             rel="noopener"
             data-tutorial-title="Published projects"
             data-tutorial="Browse all published projects on this server."
-          >Published Projects</a>
+            >Published Projects</a
+          >
           <button
             id="accountBtn"
             class="btn"
             title="Account"
             data-tutorial-title="Account"
             data-tutorial="Sign in to publish projects and manage your account."
-          >Guest</button>
+          >
+            Guest
+          </button>
         </div>
       </header>
 
@@ -339,10 +380,20 @@
       </main>
     </div>
 
-    <input id="zipInput" type="file" accept=".zip,.tgz,.tar.gz" class="hidden" />
+    <input
+      id="zipInput"
+      type="file"
+      accept=".zip,.tgz,.tar.gz"
+      class="hidden"
+    />
     <input id="fileInput" type="file" multiple class="hidden" />
 
-    <div id="newProjectModal" class="modal hidden" role="dialog" aria-label="New project">
+    <div
+      id="newProjectModal"
+      class="modal hidden"
+      role="dialog"
+      aria-label="New project"
+    >
       <div class="modal-backdrop"></div>
       <div class="modal-panel">
         <div class="modal-header">
@@ -352,8 +403,15 @@
           </button>
         </div>
         <div class="modal-body">
-          <label class="modal-label" for="newProjectNameInput">Project name</label>
-          <input id="newProjectNameInput" class="modal-input" type="text" placeholder="Project name" />
+          <label class="modal-label" for="newProjectNameInput"
+            >Project name</label
+          >
+          <input
+            id="newProjectNameInput"
+            class="modal-input"
+            type="text"
+            placeholder="Project name"
+          />
           <label class="modal-label checkbox-row">
             <input id="includeStarterFilesInput" type="checkbox" checked />
             Include starter files
@@ -365,30 +423,60 @@
       </div>
     </div>
 
-        <div id="projectMetaModal" class="modal hidden" role="dialog" aria-label="Project details">
-          <div class="modal-backdrop"></div>
-          <div class="modal-panel">
-            <div class="modal-header">
-              <span>Project details</span>
-              <button id="closeProjectMetaBtn" class="icon-btn" title="Close">
-                <i data-lucide="x"></i>
-              </button>
-            </div>
-            <div class="modal-body">
-              <label class="modal-label" for="projectTitleInput">Project name</label>
-              <input id="projectTitleInput" class="modal-input" type="text" placeholder="Project name" />
-              <label class="modal-label" for="projectCreatorInput">Creator name</label>
-              <input id="projectCreatorInput" class="modal-input" type="text" placeholder="Your name" />
-              <label class="modal-label" for="projectDescriptionInput">Project description</label>
-              <textarea id="projectDescriptionInput" class="modal-textarea" placeholder="Short description"></textarea>
-            </div>
+    <div
+      id="projectMetaModal"
+      class="modal hidden"
+      role="dialog"
+      aria-label="Project details"
+    >
+      <div class="modal-backdrop"></div>
+      <div class="modal-panel">
+        <div class="modal-header">
+          <span>Project details</span>
+          <button id="closeProjectMetaBtn" class="icon-btn" title="Close">
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <label class="modal-label" for="projectTitleInput"
+            >Project name</label
+          >
+          <input
+            id="projectTitleInput"
+            class="modal-input"
+            type="text"
+            placeholder="Project name"
+          />
+          <label class="modal-label" for="projectCreatorInput"
+            >Creator name</label
+          >
+          <input
+            id="projectCreatorInput"
+            class="modal-input"
+            type="text"
+            placeholder="Your name"
+          />
+          <label class="modal-label" for="projectDescriptionInput"
+            >Project description</label
+          >
+          <textarea
+            id="projectDescriptionInput"
+            class="modal-textarea"
+            placeholder="Short description"
+          ></textarea>
+        </div>
         <div class="modal-actions">
           <button id="saveProjectMetaBtn" class="btn">Save</button>
         </div>
       </div>
     </div>
 
-    <div id="publishModal" class="modal hidden" role="dialog" aria-label="Publish complete">
+    <div
+      id="publishModal"
+      class="modal hidden"
+      role="dialog"
+      aria-label="Publish complete"
+    >
       <div class="modal-backdrop"></div>
       <div class="modal-panel">
         <div class="modal-header">
@@ -408,7 +496,12 @@
       </div>
     </div>
 
-    <div id="accountModal" class="modal hidden" role="dialog" aria-label="Account">
+    <div
+      id="accountModal"
+      class="modal hidden"
+      role="dialog"
+      aria-label="Account"
+    >
       <div class="modal-backdrop"></div>
       <div class="modal-panel">
         <div class="modal-header">
@@ -420,10 +513,20 @@
         <div class="modal-body">
           <div id="loginPanel">
             <label class="modal-label" for="loginEmailInput">Email</label>
-            <input id="loginEmailInput" class="modal-input" type="email" placeholder="you@example.com" />
+            <input
+              id="loginEmailInput"
+              class="modal-input"
+              type="email"
+              placeholder="you@example.com"
+            />
             <div class="login-spacer"></div>
             <label class="modal-label" for="loginPasswordInput">Password</label>
-            <input id="loginPasswordInput" class="modal-input" type="password" placeholder="Password" />
+            <input
+              id="loginPasswordInput"
+              class="modal-input"
+              type="password"
+              placeholder="Password"
+            />
             <p id="loginError" class="modal-text"></p>
             <p class="modal-text">
               Need an account? Contact your Glitchlet admin.
@@ -432,8 +535,18 @@
           <div id="accountPanel" class="hidden">
             <p class="modal-text" id="accountSummary"></p>
             <div class="modal-actions">
-              <a id="accountProjectsLink" class="btn" href="/publish/projects.php">My projects</a>
-              <a id="accountManagerLink" class="btn hidden" href="/publish/manager.php">Admin</a>
+              <a
+                id="accountProjectsLink"
+                class="btn"
+                href="/publish/projects.php"
+                >My projects</a
+              >
+              <a
+                id="accountManagerLink"
+                class="btn hidden"
+                href="/publish/manager.php"
+                >Admin</a
+              >
               <button id="logoutBtn" class="btn">Log out</button>
             </div>
           </div>
@@ -444,7 +557,12 @@
       </div>
     </div>
 
-    <div id="dialogModal" class="modal hidden" role="dialog" aria-label="Dialog">
+    <div
+      id="dialogModal"
+      class="modal hidden"
+      role="dialog"
+      aria-label="Dialog"
+    >
       <div class="modal-backdrop"></div>
       <div class="modal-panel">
         <div class="modal-header">
@@ -464,7 +582,12 @@
       </div>
     </div>
 
-    <div id="aboutModal" class="modal hidden" role="dialog" aria-label="About Glitchlet">
+    <div
+      id="aboutModal"
+      class="modal hidden"
+      role="dialog"
+      aria-label="About Glitchlet"
+    >
       <div class="modal-backdrop"></div>
       <div class="modal-panel">
         <div class="modal-header">
@@ -475,17 +598,26 @@
         </div>
         <div class="modal-body">
           <p class="modal-text">
-            Glitchlet is a lightweight, browser-based creative coding environment for building
-            small HTML/CSS/JS projects with instant preview.
+            Glitchlet is a lightweight, browser-based creative coding
+            environment for building small HTML/CSS/JS projects with instant
+            preview.
           </p>
           <p class="modal-text">
-            Created by Mark Sample to help students and hobbyists publish and remix web projects.
+            Created by Mark Sample to help students and hobbyists publish and
+            remix web projects.
           </p>
           <p class="modal-text modal-version">
             Version: <span id="aboutVersion">--</span>
           </p>
           <p class="modal-text">
-            Source: <a class="modal-link" href="https://github.com/samplereality/glitchlet/" target="_blank" rel="noopener">github.com/samplereality/glitchlet</a>
+            Source:
+            <a
+              class="modal-link"
+              href="https://github.com/samplereality/glitchlet/"
+              target="_blank"
+              rel="noopener"
+              >github.com/samplereality/glitchlet</a
+            >
           </p>
         </div>
         <div class="modal-actions">
@@ -513,6 +645,10 @@
     <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/addon/search/searchcursor.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/addon/search/search.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/addon/dialog/dialog.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/addon/hint/show-hint.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/addon/hint/html-hint.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/addon/hint/css-hint.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/addon/hint/xml-hint.js"></script>
     <script src="https://unpkg.com/prettier@3.8.0/standalone.js"></script>
     <script src="https://unpkg.com/prettier@3.8.0/plugins/babel.js"></script>
     <script src="https://unpkg.com/prettier@3.8.0/plugins/estree.js"></script>
