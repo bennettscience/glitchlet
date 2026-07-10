@@ -53,7 +53,10 @@ async function prettifyCurrentFile() {
     return;
   }
   if (!window.prettier || !window.prettierPlugins) {
-    await showAlert("Prettier is still loading. Try again in a moment.", "Prettify");
+    await showAlert(
+      "Prettier is still loading. Try again in a moment.",
+      "Prettify",
+    );
     return;
   }
   const ext = extname(path);
@@ -62,7 +65,10 @@ async function prettifyCurrentFile() {
   if (ext === "css") parser = "css";
   if (ext === "html" || ext === "htm") parser = "html";
   if (!parser) {
-    await showAlert("Prettify supports HTML, CSS, and JavaScript files.", "Prettify");
+    await showAlert(
+      "Prettify supports HTML, CSS, and JavaScript files.",
+      "Prettify",
+    );
     return;
   }
   try {
@@ -84,7 +90,10 @@ async function prettifyCurrentFile() {
     queuePreview();
   } catch (error) {
     console.error(error);
-    await showAlert("Prettify failed. Check the console for details.", "Prettify");
+    await showAlert(
+      "Prettify failed. Check the console for details.",
+      "Prettify",
+    );
   }
 }
 
