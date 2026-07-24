@@ -20,6 +20,7 @@ CREATE TABLE projects (
   published_at INT NOT NULL,
   updated_at INT NOT NULL,
   url VARCHAR(255) NOT NULL,
+  is_template TINYINT(1) NOT NULL DEFAULT 0,
   INDEX(owner_user_id),
   CONSTRAINT fk_projects_owner FOREIGN KEY (owner_user_id) REFERENCES users(id) ON DELETE CASCADE
 );
