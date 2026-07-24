@@ -61,6 +61,12 @@ function fetchProjects(PDO $pdo, ?int $ownerId = null): array {
     return $stmt->fetchAll();
 }
 
+function fetchTemplateProjects(PDO $pdo): array {
+    $stmt = $pdo->prepare("SELECT * FROM projects WHERE is_template = 1 ORDER BY published_at DESC");
+    $stmt->execute();
+    return $stmt->fetchAll();
+}
+
 function buildIndexHtml(array $projects): string {
     $cards = "";
     $adminButton = "<a class=\"admin-btn\" href=\"/projects/admin.php\">Admin</a>"
@@ -73,6 +79,7 @@ function buildIndexHtml(array $projects): string {
         $url = htmlspecialchars($project["url"] ?? "#", ENT_QUOTES);
         $slug = htmlspecialchars($project["slug"] ?? "", ENT_QUOTES);
         $description = htmlspecialchars($project["description"] ?? "", ENT_QUOTES);
+        $is_template = $project["is_template"];
         $author = htmlspecialchars($project["author"] ?? ($project["creator"] ?? ""), ENT_QUOTES);
         $timestamp = isset($project["published_at"])
             ? date("M j, Y", (int) $project["published_at"])
@@ -80,6 +87,7 @@ function buildIndexHtml(array $projects): string {
         $meta = trim(($author ? "By " . $author : "") . ($timestamp ? " · " . $timestamp : ""), " ·");
         $cards .= "<article class=\"card\">"
             . "<h2><a href=\"{$url}\">{$name}</a></h2>"
+            . ($is_template ? "Template" : "Not Template" )
             . "<div class=\"meta\">{$meta}</div>"
             . ($description ? "<p>{$description}</p>" : "")
             . "<div class=\"slug\">{$slug}</div>"
@@ -114,8 +122,11 @@ function buildIndexHtml(array $projects): string {
 }
 
 function writeProjectsIndex(PDO $pdo): void {
+    // Get a project filter if one exists
+    $filter = $_GET["filter"] ?? null;
+
     ensureProjectsRoot();
-    $projects = fetchProjects($pdo);
+    $projects = ($filter == "templates") ? fetchTemplateProjects($pdo) :  fetchProjects($pdo);
     $html = buildIndexHtml($projects);
     file_put_contents(PROJECTS_ROOT . "/index.html", $html);
 }
@@ -131,6 +142,7 @@ function writeProjectJson(string $projectDir, array $project): void {
         "publishedAt" => (int) ($project["published_at"] ?? 0),
         "updatedAt" => (int) ($project["updated_at"] ?? 0),
         "url" => $project["url"] ?? "",
+        "isTemplate" => (bool) ($project["is_template"] ?? false),
     ];
     file_put_contents($projectDir . "/project.json", json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 }

@@ -58,6 +58,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         header("Location: /projects/index.html");
         exit;
     }
+    // TODO: Add param for updating a project as a template.
     if ($action === "update") {
         $name = trim((string) ($_POST["name"] ?? $project["name"]));
         $description = trim((string) ($_POST["description"] ?? ""));
