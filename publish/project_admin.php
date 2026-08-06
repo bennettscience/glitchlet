@@ -58,21 +58,23 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         header("Location: /projects/index.html");
         exit;
     }
-    // TODO: Add param for updating a project as a template.
     if ($action === "update") {
+        var_dump($_POST);
         $name = trim((string) ($_POST["name"] ?? $project["name"]));
         $description = trim((string) ($_POST["description"] ?? ""));
         $author = trim((string) ($_POST["author"] ?? ""));
+        $is_template = isset($_POST["is_template"]) ? 1 : 0;
         $updatedAt = time();
         $stmt = $pdo->prepare(
-            "UPDATE projects SET name = ?, description = ?, author = ?, creator = ?, updated_at = ? WHERE slug = ?"
+            "UPDATE projects SET name = ?, description = ?, author = ?, creator = ?, is_template = ?, updated_at = ? WHERE slug = ?"
         );
-        $stmt->execute([$name, $description, $author, $author, $updatedAt, $slug]);
+        $stmt->execute([$name, $description, $author, $author, $is_template, $updatedAt, $slug]);
         $project["name"] = $name;
         $project["description"] = $description;
         $project["author"] = $author;
         $project["creator"] = $author;
         $project["updated_at"] = $updatedAt;
+        $project["is_template"] = $is_template;
         writeProjectJson($projectDir, $project);
         writeProjectsIndex($pdo);
         header("Location: " . $_SERVER["REQUEST_URI"]);
@@ -83,9 +85,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 $name = htmlspecialchars($project["name"] ?? "Untitled Project", ENT_QUOTES);
 $description = htmlspecialchars($project["description"] ?? "", ENT_QUOTES);
 $author = htmlspecialchars($project["author"] ?? "", ENT_QUOTES);
+$isTemplate = $project["is_template"] ? "checked" : "";
 $csrf = htmlspecialchars(csrfToken(), ENT_QUOTES);
 $projectUrl = htmlspecialchars(($project["url"] ?? ""), ENT_QUOTES);
-$projectsUrl = "/projects/index.html";
+$projectsUrl = "/publish/projects.php";
 $appUrl = APP_URL;
 
 echo "<!doctype html><html><head><meta charset=\"utf-8\" />"
@@ -123,6 +126,7 @@ echo "<!doctype html><html><head><meta charset=\"utf-8\" />"
     . "<input name=\"author\" value=\"{$author}\" />"
     . "<label>Description</label>"
     . "<textarea name=\"description\">{$description}</textarea>"
+    . "<label>Save as Template<input type=\"checkbox\" name=\"is_template\" {$isTemplate} /></label>"
     . "<div class=\"actions\"><button type=\"submit\" class=\"primary\">Save</button></div>"
     . "</form>"
     . "<form method=\"post\" onsubmit=\"return confirm('Delete this project?');\">"
