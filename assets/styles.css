@@ -13,9 +13,34 @@
   --tooltip-bg: #1b1736;
   --tooltip-ink: #f6f4ff;
   --tooltip-shadow: 0 16px 32px rgba(20, 16, 60, 0.28);
-  --page-bg: radial-gradient(circle at top left, #ffffff 0%, #f5f2ff 45%, #e8f5ff 100%);
-  --radius: 16px;
-  --mono: "IBM Plex Mono", "JetBrains Mono", "SFMono-Regular", ui-monospace, monospace;
+  --page-bg: radial-gradient(
+    circle at top left,
+    #ffffff 0%,
+    #f5f2ff 45%,
+    #e8f5ff 100%
+  );
+
+  /* Suggested ratio from Every Layout. Using
+     ratio sizes to clean up all the different
+     sizes happening here.
+  */
+
+  --ratio: 1.5;
+  --s-5: calc(var(--s-4) / var(--ratio));
+  --s-4: calc(var(--s-3) / var(--ratio));
+  --s-3: calc(var(--s-2) / var(--ratio));
+  --s-2: calc(var(--s-1) / var(--ratio));
+  --s-1: calc(var(--s0) / var(--ratio));
+  --s0: 1rem;
+  --s1: calc(var(--s0) * var(--ratio));
+  --s2: calc(var(--s1) * var(--ratio));
+  --s3: calc(var(--s2) * var(--ratio));
+  --s4: calc(var(--s3) * var(--ratio));
+  --s5: calc(var(--s4) * var(--ratio));
+
+  --radius: var(--s-1);
+  --mono:
+    "IBM Plex Mono", "JetBrains Mono", "SFMono-Regular", ui-monospace, monospace;
   --sans: "Space Grotesk", "Sora", "Trebuchet MS", sans-serif;
 }
 
@@ -40,8 +65,8 @@ body {
 .app {
   display: flex;
   flex-direction: column;
-  gap: 24px;
-  padding: 28px;
+  gap: 12px;
+  padding: 14px;
   min-height: 100vh;
 }
 
@@ -66,7 +91,7 @@ body {
 .brand-mark {
   width: 42px;
   height: 42px;
-  border-radius: 14px;
+  border-radius: var(--radius);
   background: linear-gradient(135deg, #ff3ea5 0%, #7c4dff 55%, #4be0ff 100%);
   box-shadow: 0 10px 24px rgba(124, 77, 255, 0.35);
 }
@@ -95,7 +120,7 @@ body {
 .subtle-icon {
   width: 22px;
   height: 22px;
-  border-radius: 8px;
+  border-radius: var(--s-2);
   border-color: transparent;
   background: transparent;
   box-shadow: none;
@@ -128,11 +153,13 @@ body {
   border: 1px solid var(--panel-edge);
   background: var(--panel);
   padding: 10px 16px;
-  border-radius: 999px;
+  /* border-radius: 999px; */
   font-weight: 600;
   font-size: 14px;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
   text-decoration: none;
   color: var(--ink);
   display: inline-flex;
@@ -154,7 +181,7 @@ a.btn {
   z-index: 2000;
   max-width: 280px;
   padding: 12px 14px;
-  border-radius: 12px;
+  border-radius: var(--s-3);
   background: var(--tooltip-bg);
   color: var(--tooltip-ink);
   box-shadow: var(--tooltip-shadow);
@@ -163,7 +190,9 @@ a.btn {
   pointer-events: none;
   opacity: 0;
   transform: translateY(6px);
-  transition: opacity 0.15s ease, transform 0.15s ease;
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease;
 }
 
 .tutorial-tooltip.show {
@@ -183,7 +212,7 @@ a.btn {
 .tutorial-highlight {
   outline: 2px solid rgba(75, 28, 255, 0.35);
   outline-offset: 3px;
-  border-radius: 12px;
+  border-radius: var(--s-3);
 }
 
 .btn-primary {
@@ -229,7 +258,7 @@ a.btn {
   background: var(--panel);
   width: 26px;
   height: 26px;
-  border-radius: 8px;
+  border-radius: var(--s-3);
   font-size: 12px;
   cursor: pointer;
   display: inline-flex;
@@ -255,7 +284,7 @@ a.btn {
   width: 360px;
   background: var(--panel);
   border: 1px solid var(--panel-edge);
-  border-radius: 18px;
+  border-radius: var(--radius);
   box-shadow: var(--shadow);
   padding: 16px;
   display: flex;
@@ -298,7 +327,7 @@ a.btn {
   background: var(--panel);
   color: var(--ink);
   padding: 8px 12px;
-  border-radius: 12px;
+  border-radius: var(--s-1);
   font-family: var(--sans);
 }
 
@@ -318,7 +347,7 @@ a.btn {
   gap: 8px;
   padding: 8px 10px;
   border: 1px solid transparent;
-  border-radius: 12px;
+  border-radius: var(--s-1);
   background: var(--bg-accent);
 }
 
@@ -381,7 +410,7 @@ a.btn {
 .panel {
   background: var(--panel);
   border: 1px solid var(--panel-edge);
-  border-radius: var(--radius);
+  border-radius: var(--radius) var(--radius) 0 0;
   box-shadow: var(--shadow);
   display: flex;
   flex-direction: column;
@@ -424,21 +453,25 @@ a.btn {
   background: var(--panel);
   width: 30px;
   height: 30px;
-  border-radius: 10px;
+  border-radius: var(--s-2);
   cursor: pointer;
   font-weight: 700;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   padding: 0;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .icon-btn svg {
   width: 16px;
   height: 16px;
   stroke-width: 2;
-  transition: stroke 0.15s ease, transform 0.15s ease;
+  transition:
+    stroke 0.15s ease,
+    transform 0.15s ease;
 }
 
 .icon-btn.is-active {
@@ -479,7 +512,6 @@ a.btn {
   transform: scale(1.05);
 }
 
-
 .file-panel {
   width: 240px;
   flex: 0 0 240px;
@@ -517,8 +549,6 @@ a.btn {
   display: none;
 }
 
- 
-
 .file-tree {
   padding: 12px 14px 18px;
   display: flex;
@@ -531,7 +561,7 @@ a.btn {
 
 .file-item {
   padding: 6px 8px;
-  border-radius: 10px;
+  border-radius: var(--s-2);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -578,7 +608,7 @@ a.btn {
 .file-item .icon-btn {
   width: 24px;
   height: 24px;
-  border-radius: 8px;
+  border-radius: var(--s-3);
   font-size: 14px;
   line-height: 1;
 }
@@ -605,7 +635,7 @@ a.btn {
   height: 100%;
   font-family: var(--mono);
   font-size: 14px;
-  border-radius: 0 0 var(--radius) var(--radius);
+  /* border-radius: 0 0 var(--radius) var(--radius); */
 }
 
 :root[data-editor-theme="dark"] .CodeMirror {
@@ -636,7 +666,7 @@ a.btn {
 .preview-wrap {
   flex: 1;
   padding: 0;
-  border-radius: 0 0 var(--radius) var(--radius);
+  /* border-radius: 0 0 var(--radius) var(--radius); */
   overflow: hidden;
 }
 
@@ -687,7 +717,7 @@ a.btn {
   width: min(420px, 92vw);
   background: var(--panel);
   border: 1px solid var(--panel-edge);
-  border-radius: 18px;
+  border-radius: var(--radius);
   box-shadow: var(--shadow);
   padding: 16px;
   display: flex;
@@ -735,7 +765,7 @@ a.btn {
   background: var(--panel);
   color: var(--ink);
   padding: 8px 12px;
-  border-radius: 12px;
+  border-radius: var(--s-1);
   font-family: var(--sans);
 }
 
@@ -808,7 +838,7 @@ a.btn {
   font-family: var(--mono);
   font-size: 13px;
   padding: 10px 12px;
-  border-radius: 12px;
+  border-radius: var(--s-1);
   border: 1px solid var(--panel-edge);
   background: var(--bg-accent);
   word-break: break-all;
@@ -901,7 +931,6 @@ a.btn {
     position: static;
     width: 100%;
   }
-
 }
 
 :root[data-theme="light"] {
@@ -923,7 +952,12 @@ a.btn {
   --tooltip-bg: #f6f4ff;
   --tooltip-ink: #1b1736;
   --tooltip-shadow: 0 18px 36px rgba(6, 6, 14, 0.45);
-  --page-bg: radial-gradient(circle at top left, #1a1733 0%, #0f0f1f 55%, #0b0b17 100%);
+  --page-bg: radial-gradient(
+    circle at top left,
+    #1a1733 0%,
+    #0f0f1f 55%,
+    #0b0b17 100%
+  );
 }
 
 :root[data-theme="dark"] .btn:hover {
@@ -990,7 +1024,12 @@ a.btn {
     --tooltip-bg: #f6f4ff;
     --tooltip-ink: #1b1736;
     --tooltip-shadow: 0 18px 36px rgba(6, 6, 14, 0.45);
-    --page-bg: radial-gradient(circle at top left, #1a1733 0%, #0f0f1f 55%, #0b0b17 100%);
+    --page-bg: radial-gradient(
+      circle at top left,
+      #1a1733 0%,
+      #0f0f1f 55%,
+      #0b0b17 100%
+    );
   }
 
   :root:not([data-theme]) .btn:hover {
