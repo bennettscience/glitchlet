@@ -111,7 +111,7 @@ function setupEvents() {
   if (elements.accountBtn) {
     elements.accountBtn.addEventListener("click", () => {
       if (state.authUser && state.authUser.role === "manager") {
-        window.location.href = "/publish/manager.php";
+        window.location.href = "/admin/manager.php";
         return;
       }
       openAccountModal();

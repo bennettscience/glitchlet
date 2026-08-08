@@ -169,7 +169,7 @@
           </button>
           <a
             class="btn"
-            href="/publish/projects.php"
+            href="/public/projects.php"
             rel="noopener"
             data-tutorial-title="Published projects"
             data-tutorial="Browse all published projects on this server."
@@ -534,22 +534,20 @@
           <div id="accountPanel" class="hidden">
             <p class="modal-text" id="accountSummary"></p>
             <div class="modal-actions">
-              <a
-                id="accountProjectsLink"
-                class="btn"
-                href="/publish/projects.php"
+              <a id="accountProjectsLink" class="btn" href="/admin/projects.php"
                 >My projects</a
               >
               <a
                 id="accountManagerLink"
                 class="btn hidden"
-                href="/publish/manager.php"
+                href="/admin/manager.php"
                 >Admin</a
               >
               <button id="logoutBtn" class="btn">Log out</button>
             </div>
           </div>
         </div>
+        <!-- TODO: the .hidden class is above the .modal-actions class, so the hidden class doesn't take effect if applied. Fix the CSS cascade. -->
         <div class="modal-actions" id="loginActions">
           <button id="loginSubmitBtn" class="btn btn-primary">Sign in</button>
         </div>

@@ -39,13 +39,18 @@ function updateAuthUI() {
     elements.accountSummary.textContent = `${user.email} (${user.role})`;
   }
   if (elements.accountManagerLink) {
-    elements.accountManagerLink.classList.toggle("hidden", !user || user.role !== "manager");
+    elements.accountManagerLink.classList.toggle(
+      "hidden",
+      !user || user.role !== "manager",
+    );
   }
 }
 
 async function fetchSession() {
   try {
-    const response = await fetch("/publish/session.php", { credentials: "include" });
+    const response = await fetch("/admin/session.php", {
+      credentials: "include",
+    });
     const data = await response.json();
     if (data?.csrf) {
       state.csrfToken = data.csrf;
@@ -90,7 +95,7 @@ async function handleLoginSubmit() {
     if (!state.csrfToken) {
       await fetchSession();
     }
-    const response = await fetch("/publish/login.php", {
+    const response = await fetch("/admin/login.php", {
       method: "POST",
       credentials: "include",
       headers: {
@@ -117,7 +122,8 @@ async function handleLoginSubmit() {
   } catch (error) {
     console.error(error);
     if (elements.loginError) {
-      elements.loginError.textContent = "Login failed. Check your email or password.";
+      elements.loginError.textContent =
+        "Login failed. Check your email or password.";
     }
   } finally {
     if (elements.loginSubmitBtn) {
@@ -128,7 +134,7 @@ async function handleLoginSubmit() {
 
 async function handleLogout() {
   try {
-    await fetch("/publish/logout.php", {
+    await fetch("/admin/logout.php", {
       method: "POST",
       credentials: "include",
       headers: { "X-CSRF-Token": state.csrfToken },
