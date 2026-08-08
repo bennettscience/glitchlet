@@ -15,7 +15,7 @@ $raw = file_get_contents("php://input");
 $payload = $raw ? json_decode($raw, true) : null;
 $email = trim((string) (($payload["email"] ?? null) ?? ($_POST["email"] ?? "")));
 $password = (string) (($payload["password"] ?? null) ?? ($_POST["password"] ?? ""));
-$redirect = safeRedirectPath((string) ($_POST["redirect"] ?? ""), "/publish/projects.php");
+$redirect = safeRedirectPath((string) ($_POST["redirect"] ?? ""), "/public/projects.php");
 $isForm = !empty($_POST);
 
 if (!csrfIsValid()) {

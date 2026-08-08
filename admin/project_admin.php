@@ -10,7 +10,6 @@ require_once __DIR__ . "/auth.php";
 require_once __DIR__ . "/projects_helpers.php";
 
 $user = requireLogin();
-
 $scriptPath = (string) ($_SERVER["SCRIPT_FILENAME"] ?? "");
 $projectDir = $scriptPath !== "" ? realpath(dirname($scriptPath)) : false;
 $projectsRoot = realpath(PROJECTS_ROOT);
@@ -126,7 +125,7 @@ echo "<!doctype html><html><head><meta charset=\"utf-8\" />"
     . "<input name=\"author\" value=\"{$author}\" />"
     . "<label>Description</label>"
     . "<textarea name=\"description\">{$description}</textarea>"
-    . "<label>Save as Template<input type=\"checkbox\" name=\"is_template\" {$isTemplate} /></label>"
+    . ($user["role"] === "manager" ? "<label>Save as Template<input type=\"checkbox\" name=\"is_template\" {$isTemplate} /></label>" : "")
     . "<div class=\"actions\"><button type=\"submit\" class=\"primary\">Save</button></div>"
     . "</form>"
     . "<form method=\"post\" onsubmit=\"return confirm('Delete this project?');\">"
