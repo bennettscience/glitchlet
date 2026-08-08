@@ -71,8 +71,11 @@ function closeProjectMetaModal() {
 async function commitProjectMeta() {
   const nextName = normalizeProjectName(elements.projectTitleInput.value);
   const nextCreator = String(elements.projectCreatorInput.value || "").trim();
-  const nextDescription = String(elements.projectDescriptionInput.value || "").trim();
-  const changed = nextName !== state.projectName ||
+  const nextDescription = String(
+    elements.projectDescriptionInput.value || "",
+  ).trim();
+  const changed =
+    nextName !== state.projectName ||
     nextCreator !== state.projectCreator ||
     nextDescription !== state.projectDescription;
   if (!changed) return;
@@ -102,7 +105,7 @@ function closeNewProjectModal() {
 async function createNewProjectFromModal() {
   const confirmed = await showConfirm(
     "Start a new project? This will clear the current workspace.",
-    "New project"
+    "New project",
   );
   if (!confirmed) return;
   const name = elements.newProjectNameInput.value || DEFAULT_PROJECT_NAME;
@@ -131,11 +134,22 @@ async function ensurePublishMetadata() {
   if (state.projectCreator && state.projectDescription) {
     return true;
   }
-  const creator = state.projectCreator ||
-    await showPrompt("Creator name:", state.projectCreator, "Project details");
+  const creator =
+    state.projectCreator ||
+    (await showPrompt(
+      "Creator name:",
+      state.projectCreator,
+      "Project details",
+    ));
   if (creator === null) return false;
-  const description = state.projectDescription ||
-    await showPrompt("Project description:", state.projectDescription, "Project details");
+
+  const description =
+    state.projectDescription ||
+    (await showPrompt(
+      "Project description:",
+      state.projectDescription,
+      "Project details",
+    ));
   if (description === null) return false;
   state.projectCreator = String(creator || "").trim();
   state.projectDescription = String(description || "").trim();
@@ -175,8 +189,12 @@ async function renderProjectManager() {
 
     const updated = document.createElement("div");
     updated.className = "project-updated";
-    const timestamp = project.data?.updatedAt ? new Date(project.data.updatedAt) : null;
-    updated.textContent = timestamp ? `Updated ${timestamp.toLocaleString()}` : "Saved";
+    const timestamp = project.data?.updatedAt
+      ? new Date(project.data.updatedAt)
+      : null;
+    updated.textContent = timestamp
+      ? `Updated ${timestamp.toLocaleString()}`
+      : "Saved";
 
     meta.append(name, updated);
 
@@ -232,9 +250,17 @@ async function renameProjectById(projectId) {
   const project = await dbGet(projectId);
   if (!project) return;
   const currentName = normalizeProjectName(project.name);
-  const name = await showPrompt("Rename project:", currentName, "Rename project");
+  const name = await showPrompt(
+    "Rename project:",
+    currentName,
+    "Rename project",
+  );
   if (!name) return;
-  const updatedProject = { ...project, name: normalizeProjectName(name), updatedAt: Date.now() };
+  const updatedProject = {
+    ...project,
+    name: normalizeProjectName(name),
+    updatedAt: Date.now(),
+  };
   await dbSet(projectId, updatedProject);
   if (projectId === state.projectId) {
     state.projectName = updatedProject.name;
@@ -243,7 +269,10 @@ async function renameProjectById(projectId) {
 }
 
 async function deleteProjectById(projectId) {
-  const confirmed = await showConfirm("Delete this project? This cannot be undone.", "Delete project");
+  const confirmed = await showConfirm(
+    "Delete this project? This cannot be undone.",
+    "Delete project",
+  );
   if (!confirmed) return;
   await dbDelete(projectId);
   renderProjectManager();
@@ -262,7 +291,11 @@ async function saveCurrentProject() {
 }
 
 async function saveProjectAs() {
-  const name = await showPrompt("Save project as:", state.projectName, "Save project as");
+  const name = await showPrompt(
+    "Save project as:",
+    state.projectName,
+    "Save project as",
+  );
   if (!name) return;
   state.projectId = createProjectId();
   state.projectName = normalizeProjectName(name);
