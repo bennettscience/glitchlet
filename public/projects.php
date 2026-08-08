@@ -28,7 +28,7 @@ foreach ($projects as $project) {
         . "<div class=\"meta\">{$meta}</div>"
         . ($description ? "<p>{$description}</p>" : "")
         . "<div class=\"actions\">"
-        . "<a class=\"btn outline\" href=\"{$adminUrl}\">Manage</a>"
+        . ($user["role"] === "manager" ? "<a class=\" btn outline\" href=\"{$adminUrl}\">Admin</a>" : "") 
         . "<a class=\"btn outline\" href=\"{$url}\" target=\"_blank\" rel=\"noopener\">Open</a>"
         . "</div>"
         . "</div>";
