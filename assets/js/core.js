@@ -125,6 +125,7 @@ const state = {
   authUser: null,
   csrfToken: "",
   tutorialMode: false,
+  isTemplate: false,
 };
 
 const elements = {
