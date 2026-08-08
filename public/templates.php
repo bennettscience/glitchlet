@@ -1,5 +1,4 @@
 <?php
-/* Public list of all created projects on the server */
 declare(strict_types=1);
 
 require_once "../admin/auth.php";
@@ -8,26 +7,8 @@ require_once "../admin/projects_helpers.php";
 $user = requireLogin();
 $pdo = db();
 
-// Figure out if the user is the manager/admin or if it is a single user.
-$ownerId = $user["role"] === "manager" ? null : (int) $user["id"];
-$sort = (string) ($_GET["sort"] ?? "date");
-$sortOptions = [
-    "name" => "name ASC",
-    "date" => "published_at DESC",
-    "creator" => "creator ASC",
-];
-$orderBy = $sortOptions[$sort] ?? $sortOptions["date"];
-
-// Get projects by role. Either get all of the published projects
-// if it is a maneger or get projects owned by the logged in user.
-
-if ($ownerId) {
-    $stmt = $pdo->prepare("SELECT * FROM projects WHERE owner_user_id = ? ORDER BY {$orderBy}");
-    $stmt->execute([$ownerId]);
-    $projects = $stmt->fetchAll();
-} else {
-    $projects = $pdo->query("SELECT * FROM projects ORDER BY {$orderBy}")->fetchAll();
-}
+// Get all of the projects marked as templates.
+$projects = $pdo->query("SELECT * FROM projects WHERE is_template = 1 ORDER BY published_at DESC")->fetchAll();
 
 $rows = "";
 foreach ($projects as $project) {
@@ -47,21 +28,20 @@ foreach ($projects as $project) {
         . "<div class=\"meta\">{$meta}</div>"
         . ($description ? "<p>{$description}</p>" : "")
         . "<div class=\"actions\">"
-        . "<a class=\"btn outline\" href=\"{$adminUrl}\">Manage</a>"
+        . ($user["role"] === "manager" ? "<a class=\" btn outline\" href=\"{$adminUrl}\">Admin</a>" : "") 
         . "<a class=\"btn outline\" href=\"{$url}\" target=\"_blank\" rel=\"noopener\">Open</a>"
         . "</div>"
         . "</div>";
 }
 if ($rows === "") {
-    $rows = "<p class=\"empty\">No projects yet. Publish something from the editor.</p>";
+    $rows = "<p class=\"empty\">No template projects yet.</p>";
 }
 
-// TODO: Turn this into a template call rather than inline HTML
 // TODO: unlinline all the CSS. Not sure why it was done this way.
 
 echo "<!doctype html><html><head><meta charset=\"utf-8\" />"
     . "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />"
-    . "<title>My Projects</title>"
+    . "<title>Template Projects</title>"
     . "<style>"
     . "body{margin:0;font-family:Arial,sans-serif;background:#f6f6fb;color:#1b1736;}"
     . ".wrap{max-width:960px;margin:0 auto;padding:32px 20px;}"
@@ -86,15 +66,9 @@ echo "<!doctype html><html><head><meta charset=\"utf-8\" />"
     . "</style></head><body><div class=\"wrap\">"
     . "<div class=\"toolbar\">"
     . "<a href=\"" . APP_URL . "\">Glitchlet</a>"
-    . "<a class=\"outline\" href=\"/public/projects.php\">" . ($user["role"] === "manager" ? "All Published Projects" : "My Published Projects") . "</a>"
-    . "<a class=\"outline\" href=\"/public/templates.php\">Templates</a>"
-    . ($user["role"] === "manager" ? "<a class=\"outline\" href=\"/admin/manager.php\">Manager</a>" : "")
+    . "<a class=\"outline\" href=\"/publish/projects.php\">My Published Projects</a>"
+    . ($user["role"] === "manager" ? "<a class=\"outline\" href=\"/publish/manager.php\">Manager</a>" : "")
     . "</div>"
-    . "<h1>" . ($user["role"] === "manager" ? "All Published Projects" : "My Published Projects") . "</h1>"
-    . "<div class=\"sort-row\">"
-    . "<a class=\"" . ($sort === "name" ? "is-active" : "") . "\" href=\"?sort=name\">Sort by name</a>"
-    . "<a class=\"" . ($sort === "date" ? "is-active" : "") . "\" href=\"?sort=date\">Sort by date</a>"
-    . "<a class=\"" . ($sort === "creator" ? "is-active" : "") . "\" href=\"?sort=creator\">Sort by creator</a>"
-    . "</div>"
+    . "<h1>Template Projects</h1>"
     . "<div class=\"grid\">{$rows}</div>"
     . "</div></body></html>";
