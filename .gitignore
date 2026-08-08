@@ -9,6 +9,6 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-publish/config.php
+admin/config.php
 install.lock
 projects/
