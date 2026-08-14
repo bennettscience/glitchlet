@@ -1,1 +1,1 @@
-window.GLITCHLET_VERSION = "0.2.2";
+window.GLITCHLET_VERSION = "0.3.0";
