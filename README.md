@@ -28,9 +28,10 @@ These instructions assume a typical shared host (e.g., Reclaim Hosting) with PHP
 - `index.html` - app shell
 - `assets/styles.css` - UI styling
 - `assets/js/` - editor logic split into modules (`core.js` state/constants, `files.js` file tree, `preview.js` sandboxed preview, `archive.js` import/export/publish, `main.js` event wiring/startup, etc.); loaded as ordered classic scripts, no build step
-- `publish/manager.php` - manager console (accounts/projects)
-- `publish/project_admin.php` - shared per-project admin handler (each project's `admin.php` is a stub that requires it)
-- `publish/projects.php` - per-user published projects dashboard
+- `admin/*` - management PHP scripts. Manager console, authorization, database sessions, mailer setup, project management templates.
+- `admin/project_admin.php` - shared per-project admin handler (each project's `admin.php` is a stub that requires it)
+- `public/projects.php` - per-user published projects dashboard
+- `public/templates.php` - template directory for logged-in users
 
 ## Notes
 
