@@ -701,8 +701,9 @@ a.btn {
   z-index: 50;
 }
 
-.modal.hidden {
-  display: none;
+.modal.hidden,
+.modal-actions.hidden {
+  display: none !important;
 }
 
 .modal-backdrop {
