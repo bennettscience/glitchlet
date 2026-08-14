@@ -83,8 +83,8 @@ are refused otherwise. Generate the checksum with `shasum -a 256 release.zip`.
 
 ## Roadmap
 
-- Project manager (list, rename, delete)
-- Instructor template catalog
+- Improved project manager (list, rename, delete)
+- Remix projects by loading source directly into a new editor session
 
 ## License
 
