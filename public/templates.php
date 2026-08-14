@@ -67,7 +67,7 @@ echo "<!doctype html><html><head><meta charset=\"utf-8\" />"
     . "<div class=\"toolbar\">"
     . "<a href=\"" . APP_URL . "\">Glitchlet</a>"
     . "<a class=\"outline\" href=\"/publish/projects.php\">My Published Projects</a>"
-    . ($user["role"] === "manager" ? "<a class=\"outline\" href=\"/publish/manager.php\">Manager</a>" : "")
+    . ($user["role"] === "manager" ? "<a class=\"outline\" href=\"/admin/manager.php\">Manager</a>" : "")
     . "</div>"
     . "<h1>Template Projects</h1>"
     . "<div class=\"grid\">{$rows}</div>"
