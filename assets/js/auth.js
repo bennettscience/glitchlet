@@ -97,6 +97,7 @@ async function handleLoginSubmit() {
     }
     const response = await fetch("/admin/login.php", {
       method: "POST",
+      redirect: "follow",
       credentials: "include",
       headers: {
         "Content-Type": "application/json",

@@ -74,7 +74,7 @@ function saveInviteTemplate(string $subject, string $body): bool {
 }
 
 function buildResetLink(string $token): string {
-    return rtrim(APP_URL, "/") . "/publish/reset.php?token=" . $token;
+    return rtrim(APP_URL, "/") . "/admin/reset.php?token=" . $token;
 }
 
 function sendResetEmail(string $email, string $link, bool $isNew): bool {
@@ -407,7 +407,7 @@ echo "<!doctype html><html><head><meta charset=\"utf-8\" />"
     . "<a class=\"outline\" href=\"/public/projects.php\">Published projects</a>"
     . "<button class=\"secondary\" id=\"checkUpdateBtn\" type=\"button\">Check updates</button>"
     . "<button id=\"applyUpdateBtn\" type=\"button\" style=\"display:none;\">Apply update</button>"
-    . "<form method=\"post\" action=\"/publish/logout.php\">"
+    . "<form method=\"post\" action=\"/admin/logout.php\">"
     . $csrfField
     . "<input type=\"hidden\" name=\"redirect\" value=\"/\" />"
     . "<button type=\"submit\">Log out</button>"

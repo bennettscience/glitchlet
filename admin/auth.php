@@ -131,7 +131,7 @@ function renderLoginPage(string $message = "", string $redirect = ""): string {
         . "display:grid;gap:12px;min-width:280px;}input{padding:10px;border-radius:8px;"
         . "border:1px solid #ddd;}button{padding:10px;border-radius:999px;border:none;"
         . "background:#4b1cff;color:#fff;font-weight:600;}p{margin:0;color:#555;font-size:13px;}</style>"
-        . "</head><body><form method=\"post\" action=\"/publish/login.php\">"
+        . "</head><body><form method=\"post\" action=\"/admin/login.php\">"
         . "<strong>Glitchlet Login</strong>"
         . "<p>{$safeMessage}</p>"
         . "<input type=\"hidden\" name=\"redirect\" value=\"{$safeRedirect}\" />"
