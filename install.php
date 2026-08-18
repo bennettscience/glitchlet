@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 $lockPath = __DIR__ . "/install.lock";
-$configPath = __DIR__ . "/publish/config.php";
+$configPath = __DIR__ . "/admin/config.php";
 $schemaPath = __DIR__ . "/db/schema.sql";
 $projectsRoot = __DIR__ . "/projects";
 
@@ -175,10 +175,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && !$errors) {
     }
     if (!$errors) {
         if (file_exists($configPath)) {
-            $errors[] = "publish/config.php already exists. Remove it before running the installer.";
+            $errors[] = "admin/config.php already exists. Remove it before running the installer.";
         } else {
             if (!writeConfig($configPath, $values)) {
-                $errors[] = "Failed to write publish/config.php.";
+                $errors[] = "Failed to write admin/config.php.";
             }
         }
     }
