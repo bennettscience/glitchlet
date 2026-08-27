@@ -1,0 +1,14 @@
+{
+  "name": "Bucks Local Glitchlet",
+  "short_name": "Glitchlet",
+  "description": "Easily prototype websites with HTML, CSS, and Javascript all in your browser. Publish your sites and share with classmates before copying and remixing their work with your own style.",
+  "icons": [
+    {
+      "src": "assets/img/icon.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "display": "standalone"
+}

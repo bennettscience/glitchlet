@@ -25,6 +25,7 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/addon/hint/show-hint.css"
     />
+    <link rel="manifest" href="manifest.json" />
   </head>
   <body>
     <div class="app">
@@ -670,5 +671,21 @@
     <script src="assets/js/ui.js"></script>
     <script src="assets/js/tutorial.js"></script>
     <script src="assets/js/main.js"></script>
+    <!-- Load the service worker -->
+    <script src="assets/js/worker.js" defer></script>
+    <script>
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("assets/js/sw.js").then(
+          (registration) => {
+            console.log("Worker successfuly registered: ", registration);
+          },
+          (error) => {
+            console.error(`Registration failed: ${error}`);
+          },
+        );
+      } else {
+        console.error("Service workers not supported");
+      }
+    </script>
   </body>
 </html>
