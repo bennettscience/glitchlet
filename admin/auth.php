@@ -138,5 +138,5 @@ function renderLoginPage(string $message = "", string $redirect = ""): string {
         . "<input type=\"hidden\" name=\"csrf_token\" value=\"{$safeCsrf}\" />"
         . "<input name=\"email\" type=\"email\" placeholder=\"Email\" required />"
         . "<input name=\"password\" type=\"password\" placeholder=\"Password\" required />"
-        . "<button type=\"submit\">Sign in</button></form></body></html>";
+        . "<button type=\"submit\">Sign in</button><a href=\"/\">Back to editor</a></form></body></html>";
 }
