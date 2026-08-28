@@ -1,4 +1,6 @@
-/* Use a service worker to manage offline behaviors. */
+// Array of elements which need to be disabled if there is no Internet connection.
+// These items link the user to a PHP page directly.
+const buttonsToDisable = ["publishBtn", "accountBtn", "publishedProjectsBtn"];
 
 /*
 On first load, cache all of the assets. From there, intercept fetch calls and respond appropriately with a cached resource or by falling back to a different response if the resource isn't available.
@@ -45,11 +47,26 @@ async function handleConnection() {
     let status = await isReachable("https://example.com");
     if (status) {
       console.log("There is an active connection");
+      toggleDisabled(buttonsToDisable);
     } else {
       console.log("No connection");
+      toggleDisabled(buttonsToDisable);
     }
   } else {
     console.log("Internet is disconnected");
+    toggleDisabled(buttonsToDisable);
+  }
+}
+
+function toggleDisabled(buttons) {
+  for (let button of buttons) {
+    let toggleStateTo = !elements[button].getAttribute("disabled");
+    // If the elements needs to be toggled, add the attribute
+    if (toggleStateTo === true) {
+      elements[button].setAttribute("disabled", toggleStateTo);
+    } else {
+      elements[button].removeAttribute("disabled");
+    }
   }
 }
 
@@ -57,7 +74,6 @@ async function isReachable(url) {
   console.log("Trying to reach an address");
   try {
     let req = await fetch(url, { method: "HEAD", mode: "no-cors" });
-    console.log(req);
     return req && (req.ok || req.type === "opaque");
   } catch (err) {
     console.warn("[connection test failure]: ", err);

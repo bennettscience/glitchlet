@@ -171,6 +171,11 @@ a.btn {
   font-weight: 600;
 }
 
+.btn[disabled] {
+  pointer-events: none;
+  background-color: var(--muted);
+}
+
 .btn:hover {
   transform: translateY(-1px);
   box-shadow: 0 6px 16px rgba(31, 29, 26, 0.12);

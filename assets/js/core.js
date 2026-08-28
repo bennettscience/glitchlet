@@ -218,4 +218,5 @@ const elements = {
   fileInput: document.getElementById("fileInput"),
   toggleFilePanelBtn: document.getElementById("toggleFilePanelBtn"),
   expandFilePanelBtn: document.getElementById("expandFilePanelBtn"),
+  publishedProjectsBtn: document.getElementById("publishedProjectsBtn"),
 };
