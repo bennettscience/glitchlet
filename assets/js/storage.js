@@ -60,7 +60,12 @@ async function dbGetAll() {
     tx.oncomplete = () => {
       const keys = keysRequest.result || [];
       const values = valuesRequest.result || [];
-      resolve(keys.map((key, index) => ({ id: String(key), data: values[index] || null })));
+      resolve(
+        keys.map((key, index) => ({
+          id: String(key),
+          data: values[index] || null,
+        })),
+      );
     };
     tx.onerror = () => reject(tx.error);
   });
@@ -158,4 +163,54 @@ function queueSave() {
       setStatus("Save failed", 2000);
     }
   }, 400);
+}
+
+// Use sessionStorage to get the application connection state when launched as a PWA. Listen for messages from the service worker to handle interacting with the sessionStorage bucket.
+const buttonsToDisable = ["publishBtn", "accountBtn", "publishedProjectsBtn"];
+
+// Listen for the network changing.
+self.addEventListener("online", handleConnection);
+self.addEventListener("offline", handleConnection);
+
+function handleConnection() {
+  // Get the initial state of the app from sessionStorage
+  // Convert the string value into bool with JSON.parse
+  let hasConnection = JSON.parse(
+    window.sessionStorage.getItem("hasConnection"),
+  );
+  console.log(hasConnection);
+  // Set the state to whatever it is not
+  toggleDisabledState(!hasConnection);
+
+  // Toggle the sessionStorage value
+  window.sessionStorage.setItem("hasConnection", !hasConnection);
+}
+
+function toggleDisabledState(state) {
+  // Take the button array and either add or remove `disabled` based on the state passed
+  // 1. iterate the array
+  // 2. For each item, add the state value
+  for (let button of buttonsToDisable) {
+    elements[button].setAttribute("disabled", state);
+  }
+}
+
+async function isReachable(url) {
+  console.log("Trying to reach an address");
+  try {
+    let req = await fetch(url, { method: "HEAD", mode: "no-cors" });
+    return req && (req.ok || req.type === "opaque");
+  } catch (err) {
+    console.warn("[connection test failure]: ", err);
+    return err;
+  }
+}
+
+async function setInitialConnectionState() {
+  let initialConnectionState = await isReachable("/");
+  if (!initialConnectionState) {
+    window.sessionStorage.setItem("hasConnection", "false");
+  } else {
+    window.sessionStorage.setItem("hasConnection", "true");
+  }
 }
