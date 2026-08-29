@@ -180,7 +180,7 @@ function handleConnection() {
   );
   console.log(hasConnection);
   // Set the state to whatever it is not
-  toggleDisabledState(!hasConnection);
+  toggleDisabledState(hasConnection);
 
   // Toggle the sessionStorage value
   window.sessionStorage.setItem("hasConnection", !hasConnection);
