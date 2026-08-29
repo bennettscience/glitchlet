@@ -132,31 +132,25 @@ self.addEventListener("activate", (event) => {
       );
     })(),
     self.clients.claim(),
-
-    // Get the initial connection state of the application
-    // Store in sessionStorage so it is loaded every time the app is launched.
   );
   console.log("[SW: Activated]");
 });
 
 self.addEventListener("fetch", (event) => {
-  // Respond to fetches by checking the caches first
-  // If there is a response in the cache, send it.
+  // Use a network first approach to get all assets loaded.
+  // Respond to fetches by checking the network first
+  // If there is no response, send it from the cache.
   event.respondWith(
     (async () => {
-      const cachedResponse = await caches.match(event.request);
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-
       try {
-        // There is no cached response, so now go to the network.
         const response = await fetch(event.request);
         putInCache(event.request.url, response.clone());
         return response;
       } catch (error) {
-        const fallback = caches.match("/fallback.html");
-        if (fallback) return fallback;
+        const cachedResponse = await caches.match(event.request);
+        if (cachedResponse) {
+          return cachedResponse;
+        }
       }
     })(),
   );
