@@ -55,7 +55,6 @@ const cacheResources = [
 ];
 
 const CACHE_NAME = `glitchlet-${VERSION}`;
-const buttonsToDisable = ["publishBtn", "accountBtn", "publishedProjectsBtn"];
 
 /*
 On first load, cache all of the assets. From there, intercept fetch calls and respond appropriately with a cached resource or by falling back to a different response if the resource isn't available.
@@ -94,49 +93,6 @@ const cacheFirst = async ({ request, fallbackUrl }) => {
   }
 };
 
-// Listen for the network changing.
-self.addEventListener("online", handleConnection);
-self.addEventListener("offline", handleConnection);
-
-async function handleConnection() {
-  if (navigator.onLine) {
-    let status = await isReachable("https://example.com");
-    if (status) {
-      console.log("There is an active connection");
-      toggleDisabled(buttonsToDisable);
-    } else {
-      console.log("No connection");
-      toggleDisabled(buttonsToDisable);
-    }
-  } else {
-    console.log("Internet is disconnected");
-    toggleDisabled(buttonsToDisable);
-  }
-}
-
-function toggleDisabled(buttons) {
-  for (let button of buttons) {
-    let toggleStateTo = !elements[button].getAttribute("disabled");
-    // If the elements needs to be toggled, add the attribute
-    if (toggleStateTo === true) {
-      elements[button].setAttribute("disabled", toggleStateTo);
-    } else {
-      elements[button].removeAttribute("disabled");
-    }
-  }
-}
-
-async function isReachable(url) {
-  console.log("Trying to reach an address");
-  try {
-    let req = await fetch(url, { method: "HEAD", mode: "no-cors" });
-    return req && (req.ok || req.type === "opaque");
-  } catch (err) {
-    console.warn("[connection test failure]: ", err);
-    return err;
-  }
-}
-
 self.addEventListener("install", (e) => {
   e.waitUntil(
     caches.open(CACHE_NAME).then(async (cache) => {
@@ -150,7 +106,7 @@ self.addEventListener("install", (e) => {
           try {
             ok = await cache.add(resource);
           } catch (err) {
-            console.warn("[SW: cache.add]", resource);
+            console.warn("[SW: cache.add failure]", resource);
           }
         }
       }
@@ -176,13 +132,14 @@ self.addEventListener("activate", (event) => {
       );
     })(),
     self.clients.claim(),
+
+    // Get the initial connection state of the application
+    // Store in sessionStorage so it is loaded every time the app is launched.
   );
   console.log("[SW: Activated]");
 });
 
 self.addEventListener("fetch", (event) => {
-  console.log("Fetch requested: ", event.request.url);
-
   // Respond to fetches by checking the caches first
   // If there is a response in the cache, send it.
   event.respondWith(
