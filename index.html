@@ -656,6 +656,8 @@
     <script src="https://unpkg.com/prettier@3.8.0/plugins/postcss.js"></script>
     <script src="https://unpkg.com/lucide@0.454.0/dist/umd/lucide.min.js"></script>
     <script src="assets/version.js"></script>
+    <!-- Load the connection worker -->
+    <script src="assets/js/connection.js" defer></script>
     <!-- Classic scripts sharing one global scope; order matters:
          core.js first (constants/state/elements), main.js last (startup). -->
     <script src="assets/js/core.js"></script>
@@ -672,13 +674,11 @@
     <script src="assets/js/ui.js"></script>
     <script src="assets/js/tutorial.js"></script>
     <script src="assets/js/main.js"></script>
-    <!-- Load the service worker -->
-    <script src="assets/js/worker.js" defer></script>
     <script>
       if ("serviceWorker" in navigator) {
-        navigator.serviceWorker.register("assets/js/sw.js").then(
+        navigator.serviceWorker.register("./sw.js").then(
           (registration) => {
-            console.log("Worker successfuly registered: ", registration);
+            console.log("[SW: Registered]");
           },
           (error) => {
             console.error(`Registration failed: ${error}`);
