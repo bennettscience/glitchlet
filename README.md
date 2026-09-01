@@ -10,6 +10,7 @@ Glitchlet is a lightweight, browser-based creative-coding environment (HTML/CSS/
 - Static front end (no Node/React required)
 - Account-based publishing with manager + editor roles
 - Manager console for accounts, projects, and email setup links
+- PWA mode which allows for offline editing
 
 ## Install via browser (shared hosting)
 
