@@ -25,6 +25,7 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/addon/hint/show-hint.css"
     />
+    <link rel="manifest" href="./manifest.json" />
   </head>
   <body>
     <div class="app">
@@ -168,6 +169,7 @@
             Publish
           </button>
           <a
+            id="publishedProjectsBtn"
             class="btn"
             href="/public/projects.php"
             rel="noopener"
@@ -639,7 +641,7 @@
     <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/addon/fold/comment-fold.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/addon/fold/xml-fold.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/addon/fold/markdown-fold.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/addon/fold/javascript-fold.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/addon/fold/javascript-fold.js"></script> -->
     <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/addon/search/searchcursor.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/addon/search/search.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/addon/dialog/dialog.js"></script>
@@ -670,5 +672,19 @@
     <script src="assets/js/ui.js"></script>
     <script src="assets/js/tutorial.js"></script>
     <script src="assets/js/main.js"></script>
+    <script>
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("./sw.js").then(
+          (registration) => {
+            console.log("[SW: Registered]");
+          },
+          (error) => {
+            console.error(`Registration failed: ${error}`);
+          },
+        );
+      } else {
+        console.error("Service workers not supported");
+      }
+    </script>
   </body>
 </html>

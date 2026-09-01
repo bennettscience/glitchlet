@@ -375,4 +375,5 @@ setupEvents();
 setTutorialMode(state.tutorialMode);
 setAuthUser(null);
 fetchSession();
+setInitialConnectionState();
 loadInitialProject();

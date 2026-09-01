@@ -66,7 +66,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding: 14px;
+  padding: var(--s-1);
   min-height: 100vh;
 }
 
@@ -169,6 +169,11 @@ body {
 
 a.btn {
   font-weight: 600;
+}
+
+.btn[disabled="true"] {
+  pointer-events: none;
+  background-color: var(--muted);
 }
 
 .btn:hover {
